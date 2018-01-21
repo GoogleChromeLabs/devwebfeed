@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>dev-web firehose</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#37474F">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Product+Sans">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+
+<main>
+  <header>
+    <hgroup>
+      <h1 class="title">dev-web firehose</h1>
+      <h3>articles, tuts, tweets, code snippets</h3>
+      <h4>Posts are sorted added date, not when they were published. Clicking a <a href="?author=Paul+Kinlan">name</a> or <a href="?domain=medium.com">domain</a> will filter list.
+      </h4>
+    </hgroup>
+    <div id="filtering" class="layout center-center">
+      <span>Filtering posts by "<span class="filtering-needle"></span>".</span>
+      <a href="#" class="filtering-clear" onclick="return clearFilters()"><img src="clear_white_24px.svg"></a>
+    </div>
+  </header>
+  <div id="container">
+    <h3 class="loading layout center-center">Fetching dem contentz...</h3>
+    <!-- filled dynamically -->
+  </div>
+</main>
+
+<script src="https://www.gstatic.com/firebasejs/4.8.1/firebase.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.8.1/firebase-firestore.js"></script>
+<script>
+(async() => {
+
+})();
+</script>
+</body>
+</html>

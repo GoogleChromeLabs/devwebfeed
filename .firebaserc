@@ -1,0 +1,6 @@
+{
+  "projects": {
+    "app": "devwebfeed",
+    "default": "devwebfeed"
+  }
+}

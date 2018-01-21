@@ -1,0 +1,25 @@
+{
+  "name": "dev-web firehose",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAlEP/EZY46SFEi6VZBrISb64iggemJSYc/1P5GB1IZCkW5R6mAE4FITkkL87zew3dgfK2vR5F2V50EOTtJ7f6Rdu28QeoXDxXSDeoMmdlJwpQWa2b5fMN9SZAwwTGRbIX6L7RXosEgzZCPUjjdNrm2jIusK3AmPMZOBaVTpynYWVN8+c4fvdKF6f2Ptb4Be7TD1gQMoJmXPNU4GyGKJMyZKFXbS1JyxoESbrQZm453Y2MEUvYcJqcQ+NqqcVHuHtsk6VH2KsRdK2cv3P6hl1AXK29IvaOUdvF9tRGIXp4TzMFGzgrs+uftfO6KKp9vVYmVf135yizZrLh0PrMGdVM3QIDAQAB",
+  "manifest_version": 2,
+  "description": "Share/track team content and contributions",
+  "version": "0.0.1",
+  "browser_action": {
+    "default_icon": "firehose.png",
+    "default_title": "Click to submit this URL to team dashboard"
+  },
+  "background": {
+    "persistent": false,
+    "scripts": ["background.js"]
+  },
+  "permissions": [
+    "identity",
+    "identity.email",
+    "activeTab",
+    "http://*/"
+  ],
+  "oauth2": {
+    "client_id": "1067674167387-tgebqj4o417ugip2k8ae068h2fvbcafu.apps.googleusercontent.com",
+    "scopes": ["profile"]
+  }
+}

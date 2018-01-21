@@ -1,0 +1,29 @@
+{
+  "name": "team-contributions",
+  "version": "1.0.0",
+  "main": "server.js",
+  "author": "Eric Bidelman <ebidel@gmail.com>",
+  "license": "Apache-2.0",
+  "engines": {
+    "node": ">=8.5.0"
+  },
+  "scripts": {
+    "prestart": "yarn build",
+    "start": "node server.js",
+    "build1": "babel --plugins transform-es2015-modules-commonjs -o ./public/util.build.mjs ./public/util.mjs",
+    "build2": "babel --plugins transform-es2015-modules-commonjs -o ./public/feeds.build.mjs ./public/feeds.mjs",
+    "build-shared": "babel --plugins transform-es2015-modules-commonjs -o ./public/shared.build.mjs ./public/shared.mjs",
+    "build": "yarn build1 && yarn build2 && yarn build-shared",
+    "deploy2-fb": "yarn build && firebase deploy",
+    "deploy": "gcloud app deploy app.yaml --project devwebfeed"
+  },
+  "dependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "firebase-admin": "^5.8.1",
+    "lit-html": "^0.8.0",
+    "rss-parser": "^2.12.0"
+  }
+}
