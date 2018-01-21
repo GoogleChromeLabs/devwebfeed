@@ -91,13 +91,12 @@ function renderPosts(items, container) {
             post.author = post.author.trim();
           }
           const by = post.author ? `by ${post.author}` : '';
-          const title = post.title;
 
           return html`
             <li class="post layout start">
               <div class="overflow flex layout vertical" title="${post.title}">
                 <div class="layout overflow">
-                  <a class="post_child post_title" href="${post.url}" target="_blank">${title}</a>
+                  <a class="post_child post_title" href="${post.url}" target="_blank">${post.title}</a>
                   <span class="post_child post_author clickable"
                         onclick="filterBy('author', '${post.author}')">${by}</span>
                 </div>

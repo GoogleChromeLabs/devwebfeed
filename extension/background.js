@@ -65,7 +65,13 @@ function getPageTitle(tab) {
     chrome.tabs.executeScript(tab.id, {
       code: 'document.title || null;'
     }, result => {
-      resolve(result[0]);
+      let title = result[0];
+      // Cleanup Twitter titles.
+      const m = title.match(/^.*on Twitter: "(.*)"/i);
+      if (m) {
+        title = m[1];
+      }
+      resolve(title);
     });
   });
 }
