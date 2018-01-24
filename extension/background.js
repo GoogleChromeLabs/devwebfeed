@@ -117,7 +117,7 @@ async function sendPageInfo(submitter, tab) {
     author: await getAuthor(tab),
   };
 
-  const ORIGIN = 'http://localhost:8080'; // TODO:update when server is live.
+  const ORIGIN = 'https://devwebfeed.appspot.com';
 
   try {
     const resp = await fetch(`${ORIGIN}/posts`, {

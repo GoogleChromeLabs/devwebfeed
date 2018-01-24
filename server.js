@@ -47,12 +47,12 @@ app.use(bodyParser.json());
 
 app.use(express.static('public', {extensions: ['html', 'htm']}));
 app.use(express.static('node_modules/lit-html'));
-// app.use(function cors(req, res, next) {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   // res.header('Content-Type', 'application/json;charset=utf-8');
-//   // res.header('Cache-Control', 'private, max-age=300');
-//   next();
-// });
+app.use(function cors(req, res, next) {
+  res.header('Access-Control-Allow-Origin', '*');
+  // res.header('Content-Type', 'application/json;charset=utf-8');
+  // res.header('Cache-Control', 'private, max-age=300');
+  next();
+});
 
 function updateRSSFeedsDaily() {
   console.info('Updating RSS feeds...');
