@@ -16,7 +16,7 @@
     "identity",
     "identity.email",
     "activeTab",
-    "http://*/"
+    "https://devwebfeed.appspot.com/*"
   ],
   "oauth2": {
     "client_id": "1067674167387-tgebqj4o417ugip2k8ae068h2fvbcafu.apps.googleusercontent.com",
