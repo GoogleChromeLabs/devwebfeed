@@ -19,7 +19,7 @@ body {
   line-height: 1.8;
   margin: 0;
   color: var(--material-blue-grey-800);
-  background: url(firehose.png);
+  background: url(img/firehose.png);
   background-attachment: fixed;
   background-size: 60px;
   background-color: var(--material-blue-grey-800);
@@ -59,21 +59,7 @@ main {
   padding: calc(var(--default-padding) * 2);
   position: relative;
 }
-main::before {
-  --size: 50px;
-  content: '';
-  background: url(firehose.png) no-repeat 50% 50%;
-  background-size: var(--size);
-  background-blend-mode: luminosity;
-  background-color: var(--material-blue-grey-800);
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: calc(-1 * var(--size) / 2);
-  height: calc(var(--size) - 4px);
-  width: calc(var(--size) - 4px);
-  margin: 0 auto;
-}
+
 
 [hidden] {
   display: none !important;
@@ -233,7 +219,7 @@ header h4 {
 .remove_button {
   width: 25px;
   height: 25px;
-  background: url(remove_icon_24px.svg) no-repeat 50% 50%;
+  background: url(img/remove_icon_24px.svg) no-repeat 50% 50%;
   background-size: 28px;
   display: none;
 }
@@ -242,11 +228,37 @@ header h4 {
   display: none;
 }
 
+.source_icon {
+  height: 14px;
+  width: 14px;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+
+.source_icon[src=""] {
+  display: none;
+}
+
 @media screen and (min-width: 768px) {
   main {
     margin: 72px auto;
     width: 60%;
     border-radius: 8px;
+  }
+  main::before {
+    --size: 50px;
+    content: '';
+    background: url(img/firehose.png) no-repeat 50% 50%;
+    background-size: var(--size);
+    background-blend-mode: luminosity;
+    background-color: var(--material-blue-grey-800);
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(-1 * var(--size) / 2);
+    height: calc(var(--size) - 4px);
+    width: calc(var(--size) - 4px);
+    margin: 0 auto;
   }
   .title {
     font-size: 40px;

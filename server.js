@@ -35,6 +35,9 @@ firebasedAdmin.initializeApp({
 const db = firebasedAdmin.firestore();
 const app = express();
 
+const CACHE_QUERIES = false;
+const FIREBASE_CACHE = new Map();
+
 app.use(function forceSSL(req, res, next) {
   if (req.hostname !== 'localhost' && req.get('X-Forwarded-Proto') === 'http') {
     res.redirect(`https://${req.hostname}${req.url}`);
@@ -140,6 +143,8 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   const month = req.params.month ? req.params.month.padStart(2, '0') : null;
   const day = req.params.day ? req.params.day.padStart(2, '0') : null;
 
+  const maxResults = req.query.maxresults ? Number(req.query.maxresults) : null;
+
   // let path = '/posts';
   // path += year ? year : '';
   // path += month ? `/${month}` : '';
@@ -149,51 +154,65 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
     return res.status(400).send({error: 'No year specified.'});
   }
 
-  const postsCollection =  db.collection(year);
-
-  let items = await feeds.collectRSSFeeds(); // First set RSS items.
-
-  // Filter out RSS items not in the year.
-  items = items.filter(item => {
-    const submitted = new Date(item.submitted);
-    return submitted.getFullYear() === parseInt(year);
-  });
-
-  if (month) {
-    // Filter out RSS items not in the month.
-    items = items.filter(item => {
-      const submitted = new Date(item.submitted);
-      return (submitted.getMonth() + 1) === parseInt(month);
-    });
-
-    const doc = await postsCollection.doc(month).get();
-    if (doc.exists) {
-      items.push(...doc.data().items);
-    }
+  let items = [];
+  if (FIREBASE_CACHE.has(req.path)) {
+    items = FIREBASE_CACHE.get(req.path);
   } else {
-    const querySnapshot = await postsCollection.get();
-    for (const doc of querySnapshot.docs) {
-      items.push(...(await doc.ref.get()).data().items);
+    const postsCollection =  db.collection(year);
+
+    items = await feeds.collectRSSFeeds(); // First set RSS items.
+
+    // Filter out RSS items not in the year.
+    items = items.filter(item => {
+      const submitted = new Date(item.submitted);
+      return submitted.getFullYear() === parseInt(year);
+    });
+
+    if (month) {
+      // Filter out RSS items not in the month.
+      items = items.filter(item => {
+        const submitted = new Date(item.submitted);
+        return (submitted.getMonth() + 1) === parseInt(month);
+      });
+
+      const doc = await postsCollection.doc(month).get();
+      if (doc.exists) {
+        items.push(...doc.data().items);
+      }
+    } else {
+      const querySnapshot = await postsCollection.get();
+      for (const doc of querySnapshot.docs) {
+        items.push(...(await doc.ref.get()).data().items);
+      }
+    }
+
+    // Filter out items not in the day.
+    if (day) {
+      items = items.filter(item => {
+        const submitted = new Date(item.submitted);
+        return submitted.getDate() === parseInt(day);
+      });
+    }
+
+    // TODO: construct a db query that returns sorted results.
+    util.sortPosts(items);
+
+    // if (doc.exists) {
+    //   console.log(doc.data())
+    //   items = doc.data().items;
+    // } else {
+    //   console.warn(`No posts exist for ${doc.id}.`);
+    // }
+
+    if (CACHE_QUERIES) {
+      FIREBASE_CACHE.set(req.path, items);
     }
   }
 
-  // Filter out items not in the day.
-  if (day) {
-    items = items.filter(item => {
-      const submitted = new Date(item.submitted);
-      return submitted.getDate() === parseInt(day);
-    });
+  // TODO: use limit() on Firebase query.
+  if (maxResults) {
+    items = items.slice(0, maxResults);
   }
-
-  // TODO: construct a db query that returns sorted results.
-  util.sortPosts(items);
-
-  // if (doc.exists) {
-  //   console.log(doc.data())
-  //   items = doc.data().items;
-  // } else {
-  //   console.warn(`No posts exist for ${doc.id}.`);
-  // }
 
   res.status(200).send(items);
 });

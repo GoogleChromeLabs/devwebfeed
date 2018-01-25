@@ -52,9 +52,13 @@ function groupBySubmittedDate(items) {
   return Array.from(map.entries());
 }
 
-async function fetchPosts(url) {
+async function fetchPosts(url, maxResults = null) {
   try {
-    const resp = await fetch(url);
+    url = new URL(url, document.baseURI);
+    if (maxResults) {
+      url.searchParams.set('maxresults', maxResults);
+    }
+    const resp = await fetch(url.toString());
     const json = await resp.json();
     if (!resp.ok || json.error) {
       throw Error(json.error);
@@ -71,6 +75,18 @@ function renderPostIcon(submitter) {
   }
   const submitterStr = submitter.email ? `Submitted by ${submitter.email}` : '';
   return html`<img src="${submitter.picture}" class="profile_pic" title="${submitterStr}">`;
+}
+
+function iconSrc(domain) {
+  let src = '';
+  if (domain.match('github.com')) {
+    src = 'img/github_icon.svg';
+  } else if (domain.match('developers.google.com')) {
+    src = 'img/wf_icon.png';
+  } else if (domain.match('twitter.com')) {
+    src = 'img/twitter_icon.png';
+  }
+  return src;
 }
 
 function renderPosts(items, container) {
@@ -100,8 +116,10 @@ function renderPosts(items, container) {
                   <span class="post_child post_author clickable"
                         onclick="filterBy('author', '${post.author}')">${by}</span>
                 </div>
-                <span class="post_child post_domain clickable"
-                        onclick="filterBy('domain', '${post.domain}')">${post.domain}</span>
+                <span class="post_child post_domain clickable""
+                      onclick="filterBy('domain', '${post.domain}')">
+                      <img src="${iconSrc(post.domain)}" class="source_icon">${post.domain}
+                </span>
               </div>
               <div class="layout">
                 <a href="" class="remove_button" onclick="return handleDelete(this, '${date}', '${post.url}')"
