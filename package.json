@@ -5,11 +5,11 @@
   "author": "Eric Bidelman <ebidel@gmail.com>",
   "license": "Apache-2.0",
   "engines": {
-    "node": ">=8.5.0"
+    "node": ">=9.5.0"
   },
   "scripts": {
-    "prestart": "yarn build",
-    "start": "node server.js",
+    "prestart_disable": "yarn build",
+    "start": "node --experimental-modules server.mjs",
     "build1": "babel --plugins transform-es2015-modules-commonjs -o ./public/util.build.mjs ./public/util.mjs",
     "build2": "babel --plugins transform-es2015-modules-commonjs -o ./public/feeds.build.mjs ./public/feeds.mjs",
     "build-shared": "babel --plugins transform-es2015-modules-commonjs -o ./public/shared.build.mjs ./public/shared.mjs",
@@ -24,6 +24,7 @@
     "express": "^4.16.2",
     "firebase-admin": "^5.8.1",
     "lit-html": "^0.8.0",
-    "rss-parser": "^2.12.0"
+    "rss-parser": "^2.12.0",
+    "twitter": "^1.7.1"
   }
 }

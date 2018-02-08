@@ -38,7 +38,8 @@ export const FEEDS = [
   'https://sgom.es/feed.xml',
   'https://samdutton.wordpress.com/feed/',
   'https://mathiasbynens.be/notes.rss',
-  'https://meowni.ca/atom.xml'
+  'https://meowni.ca/atom.xml',
+  'http://blog.chromium.org/atom.xml',
 ];
 
 export const BLOG_TO_AUTHOR = [

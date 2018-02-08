@@ -16,20 +16,23 @@
 
 'use strict';
 
-const bodyParser = require('body-parser');
-const firebasedAdmin = require('firebase-admin');
-const express = require('express');
+import fs from 'fs';
+import bodyParser from 'body-parser';
+import firebasedAdmin from 'firebase-admin';
+import express from 'express';
 
-const feeds = require('./public/feeds.build.mjs');
-// const feeds = require('./public/feeds.mjs');
-const util = require('./public/util.build.mjs');
-const {BLOG_TO_AUTHOR} = require('./public/shared.build.mjs');
+import Twitter from './public/twitter.mjs';
+import * as feeds from './public/feeds.mjs';
+import * as util from './public/util.mjs';
+import {BLOG_TO_AUTHOR} from './public/shared.mjs';
+
 // const dbHelper = require('./public/db.build.mjs');
 // console.log(dbHelper.fetchPosts());
 
 firebasedAdmin.initializeApp({
   // credential: firebasedAdmin.credential.applicationDefault()
-  credential: firebasedAdmin.credential.cert(require('./serviceAccountKey.json'))
+  credential: firebasedAdmin.credential.cert(
+      JSON.parse(fs.readFileSync('./serviceAccountKey.json')))
 });
 
 const db = firebasedAdmin.firestore();
@@ -132,6 +135,16 @@ app.post('/posts', async (req, res) => {
 //   await deletePost(year, month, itemsIdx);
 //   res.status(200).send('Success!');
 // });
+
+app.get('/tweets/:username', async (req, res) => {
+  const username = req.params.username;
+  const t = new Twitter();
+  const tweets = await t.getTweets(username);
+  // for (const tweet of tweets) {
+    // console.log(tweet.created_at, tweet.text);
+  // }
+  res.status(200).json(tweets);
+});
 
 app.get('/posts/update_rss', async (req, res) => {
   res.status(200).json(await feeds.updateFeeds());

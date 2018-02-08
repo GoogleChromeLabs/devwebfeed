@@ -16,9 +16,10 @@
 
 'use strict';
 
-import {URL} from 'url';
-import * as rssParser from 'rss-parser';
-import {BLOG_TO_AUTHOR, FEEDS} from './shared.build.mjs';
+import url from 'url';
+const URL = url.URL;
+import rssParser from 'rss-parser';
+import {BLOG_TO_AUTHOR, FEEDS} from './shared.mjs';
 
 let FEEDS_CACHE = [];
 

@@ -1,5 +1,6 @@
 .DS_Store
 node_modules
 serviceAccountKey.json
+twitter_credentials.json
 *-error.log
 *.pem

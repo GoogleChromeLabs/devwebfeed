@@ -85,6 +85,8 @@ function iconSrc(domain) {
     src = 'img/wf_icon.png';
   } else if (domain.match('twitter.com')) {
     src = 'img/twitter_icon.png';
+  } else if (domain.match('chromium.org')) {
+    src = 'img/chromium_logo.svg';
   }
   return src;
 }
