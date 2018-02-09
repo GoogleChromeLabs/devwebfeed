@@ -55,4 +55,14 @@ function sortPosts(items) {
   }).reverse();
 }
 
-export {sortPosts, debounce};
+function uniqueItemsByUrl(items) {
+  // Return unique items based on url property.
+  const posts = Array.from(items.reduce((map, item) => {
+    return map.set(item.url, item);
+  }, new Map()).values());
+  return posts;
+}
+
+export const currentYear = String((new Date()).getFullYear());
+
+export {sortPosts, debounce, uniqueItemsByUrl};

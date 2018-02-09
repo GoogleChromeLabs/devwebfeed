@@ -14,43 +14,15 @@
  * limitations under the License.
  */
 
-import {html, render} from './lit-html.js';
-import {repeat} from './lib/repeat.js';
 import * as util from './util.mjs';
 import * as shared from './shared.mjs';
+import {renderPosts, container} from './render.mjs';
 
 firebase.initializeApp(shared.firebaseConfig);
-
-const container = document.querySelector('#container')
-const currentYear = String((new Date()).getFullYear());
 const db = firebase.firestore();
 
 const _postsCache = [];
 let _filteringBy = null;
-
-function formatDate(dateStr) {
-  try {
-    const date = new Date(dateStr);
-    return new Intl.DateTimeFormat(
-        'en-US', {year: 'numeric', month: 'short', day: 'numeric'}).format(date);
-  } catch (err) {
-    console.error(dateStr, err);
-  }
-}
-
-function groupBySubmittedDate(items) {
-  const map = new Map();
-
-  items.forEach(item => {
-    const submitted = formatDate(item.submitted);
-    if (!map.has(submitted)) {
-      map.set(submitted, []);
-    }
-    map.get(submitted).push(item);
-  });
-
-  return Array.from(map.entries());
-}
 
 async function fetchPosts(url, maxResults = null) {
   try {
@@ -69,95 +41,18 @@ async function fetchPosts(url, maxResults = null) {
   }
 }
 
-function renderPostIcon(submitter) {
-  if (!submitter || !submitter.picture) {
-    return '';
-  }
-  const submitterStr = submitter.email ? `Submitted by ${submitter.email}` : '';
-  return html`<img src="${submitter.picture}" class="profile_pic" title="${submitterStr}">`;
-}
-
-function iconSrc(domain) {
-  let src = '';
-  if (domain.match('github.com')) {
-    src = 'img/github_icon.svg';
-  } else if (domain.match('developers.google.com')) {
-    src = 'img/wf_icon.png';
-  } else if (domain.match('twitter.com')) {
-    src = 'img/twitter_icon.png';
-  } else if (domain.match('chromium.org')) {
-    src = 'img/chromium_logo.svg';
-  }
-  return src;
-}
-
-function renderPosts(items, container) {
-  util.sortPosts(items);
-
-  // Group posts by the date they were submitted.
-  items = groupBySubmittedDate(items);
-  const template = (items) => html`
-    <ul id="posts">
-      ${repeat(items, (item) => item[1].url, (item, i) => {
-        const date = item[0];
-        const posts = item[1];
-
-        const postTmplResults = repeat(posts, (post) => item.url, (post, i) => {
-          post.domain = new URL(post.url).host;
-
-          if (post.author) {
-            post.author = post.author.trim();
-          }
-          const by = post.author ? `by ${post.author}` : '';
-
-          return html`
-            <li class="post layout start">
-              <div class="overflow flex layout vertical" title="${post.title}">
-                <div class="layout overflow">
-                  <a class="post_child post_title" href="${post.url}" target="_blank">${post.title}</a>
-                  <span class="post_child post_author clickable"
-                        onclick="filterBy('author', '${post.author}')">${by}</span>
-                </div>
-                <span class="post_child post_domain clickable""
-                      onclick="filterBy('domain', '${post.domain}')">
-                      <img src="${iconSrc(post.domain)}" class="source_icon">${post.domain}
-                </span>
-              </div>
-              <div class="layout">
-                <a href="" class="remove_button" onclick="return handleDelete(this, '${date}', '${post.url}')"
-                   title="Remove this post" data-rss="${post.rss}"></a>
-                ${renderPostIcon(post.submitter)}
-              </div>
-            </li>`;
-        });
-
-        return html`
-          <li class="posts_group">
-            <h3 class="post_date">${formatDate(date)}</h3>
-            <ol>${postTmplResults}</ol>
-          </li>
-        `;
-      })}
-    </ul>
-  `;
-
-  render(template(items), container);
-}
-
 /**
  * @return {!Promise} Resolves when the post has been deleted from the db.
  */
-function deletePost(year, month, url) {
-  const docRef = db.collection(year).doc(month);
-  return docRef.get().then(snapshot => {
-    const items = snapshot.data().items;
-    const idx = items.findIndex(item => item.url === url);
-    if (idx !== -1) {
-      items.splice(idx, 1);
-      return docRef.update({items});
-    }
-    console.warn(`No post for ${url} in ${year}/${month}`);
-  });
+async function deletePost(year, month, url) {
+  const doc = db.collection(year).doc(month);
+  const items = (await doc.get()).data().items;
+  const idx = items.findIndex(item => item.url === url);
+  if (idx !== -1) {
+    items.splice(idx, 1);
+    return docRef.update({items});
+  }
+  console.warn(`No post for ${url} in ${year}/${month}`);
 }
 
 function handleDelete(el, dateStr, url) {
@@ -199,7 +94,6 @@ function filterBy(key, needle = null) {
   }
 
   window.history.pushState(null, '', currentURL.href);
-
   renderPosts(posts, container);
 }
 
@@ -209,28 +103,31 @@ function clearFilters() {
   return false;
 }
 
-function realtimeUpdatePosts(lastYearsPosts) {
+/**
+ * @param {!Array<!Object>} otherPosts Additional posts to render.
+ */
+function realtimeUpdatePosts(otherPosts) {
   const originalTitle = document.title;
   let numChanges = 0;
   let firstLoad = true;
 
-  // Subscribe to realtime db updates for current year.
-  // TODO: also monitor changes to previous years. The UI currently won't
-  // refresh if a previous year's post is deleted..
-  db.collection(currentYear).onSnapshot(querySnapshot => {
+  // Subscribe to real-time db updates for current year.
+  // TODO: setup monitoring changes for previous years.
+  // TODO: refresh UI if a previous year's post is deleted.
+  db.collection(util.currentYear).onSnapshot(querySnapshot => {
     if (document.hidden) {
       document.title = `(${++numChanges}) ${originalTitle}`;
     }
 
     if (!firstLoad) {
       // querySnapshot.docChanges.forEach(change => {
-      //   renderPosts([...change.doc.data().items, ...lastYearsPosts], container);
+      //   renderPosts([...change.doc.data().items, ...otherPosts], container);
       // });
       const thisYearsPosts = querySnapshot.docChanges[0].doc.data().items;
-      renderPosts([...thisYearsPosts, ...lastYearsPosts], container);
+      renderPosts([...thisYearsPosts, ...otherPosts], container);
     }
 
-    // TODO: only render new posts.
+    // TODO: only render new posts. Currently render everything.
     // util.debounceRenderPosts(posts, container);
     firstLoad = false;
   });
@@ -247,20 +144,24 @@ function realtimeUpdatePosts(lastYearsPosts) {
 }
 
 (async() => {
+  const ssr = container.querySelector('#posts');
+
   try {
-    const lastYearsPosts = await fetchPosts(`/posts/${currentYear - 1}`);
-    const thisYearsPosts = await fetchPosts(`/posts/${currentYear}`);
-    const items = [...thisYearsPosts, ...lastYearsPosts];
+    const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
+    const thisYearsPosts = await fetchPosts(`/posts/${util.currentYear}`);
+    const tweets = await fetchPosts(`/tweets/ChromiumDev`);
+    const items = [...thisYearsPosts, ...lastYearsPosts, ...tweets];
 
     // Ensure list of rendered posts is unique based on URL.
-    const posts = Array.from(items.reduce((map, item) => {
-      return map.set(item.url, item);
-    }, new Map()).values());
+    const posts = util.uniqueItemsByUrl(items);
 
     _postsCache.push(...posts); // populate
 
-    renderPosts(posts, container);
-    realtimeUpdatePosts(lastYearsPosts);
+    if (!ssr) {
+      renderPosts(posts, container);
+    }
+
+    realtimeUpdatePosts([...lastYearsPosts, ...tweets]);
 
     const params = new URL(location.href).searchParams;
     if (params.has('edit')) {

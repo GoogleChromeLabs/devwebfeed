@@ -20,13 +20,14 @@ import fs from 'fs';
 import bodyParser from 'body-parser';
 import firebasedAdmin from 'firebase-admin';
 import express from 'express';
+import puppeteer from 'puppeteer';
 
 import Twitter from './public/twitter.mjs';
 import * as feeds from './public/feeds.mjs';
 import * as util from './public/util.mjs';
 import {BLOG_TO_AUTHOR} from './public/shared.mjs';
 
-// const dbHelper = require('./public/db.build.mjs');
+// const dbHelper = require('./public/db.mjs');
 // console.log(dbHelper.fetchPosts());
 
 firebasedAdmin.initializeApp({
@@ -38,13 +39,20 @@ firebasedAdmin.initializeApp({
 const db = firebasedAdmin.firestore();
 const app = express();
 
-const CACHE_QUERIES = false;
+const PARTIALS_CACHE = new Map();
 const FIREBASE_CACHE = new Map();
+const CACHE_REST_QUERIES = false;
 
 app.use(function forceSSL(req, res, next) {
   if (req.hostname !== 'localhost' && req.get('X-Forwarded-Proto') === 'http') {
     res.redirect(`https://${req.hostname}${req.url}`);
   }
+  next();
+});
+
+app.use((req, res, next) => {
+  req.getCurrentUrl = () => `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  req.getOrigin = () => `${req.protocol}://${req.get('host')}`;
   next();
 });
 
@@ -56,7 +64,7 @@ app.use(express.static('node_modules/lit-html'));
 // app.use(function cors(req, res, next) {
 //   res.header('Access-Control-Allow-Origin', '*');
 //   // res.header('Content-Type', 'application/json;charset=utf-8');
-//   // res.header('Cache-Control', 'private, max-age=300');
+//   // res.header('Cache-Control', 'public, max-age=300, s-maxage=600');
 //   next();
 // });
 
@@ -81,6 +89,9 @@ async function newPost(post) {
   const day = String(submitted.getDate()).padStart(2, '0');
 
   const doc = db.collection(year).doc(month);
+  if (!(await doc.get()).exists) {
+    await doc.create({items: []});
+  }
 
   const items = (await doc.get()).data().items;
 
@@ -107,28 +118,47 @@ async function newPost(post) {
 //  */
 // async function deletePost(year, month, url) {
 //   const doc = db.collection(year).doc(month);
-
 //   const items = (await doc.get()).data().items;
-
 //   const idx = items.findIndex(item => item.url === url);
-
-//   console.log(items[idx]);
-
-//   // items.push(post);
-
-//   // return doc.update({items});
+//   if (idx !== -1) {
+//     items.splice(idx, 1);
+//     return docRef.update({items});
+//   }
 // }
 
 app.post('/posts', async (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
   res.header('Access-Control-Allow-Headers', 'Content-Type');
-
   await newPost(req.body);
   res.status(200).send('Success!');
 });
 
+async function ssr(url) {
+  if (PARTIALS_CACHE.has(url)) {
+    return PARTIALS_CACHE.get(url);
+  }
+
+  const browser = await puppeteer.launch();
+  const page = await browser.newPage();
+  await page.goto(url, {waitUntil: 'domcontentloaded'});
+  await page.waitForSelector('#posts'); // wait for posts to be in filled in page.
+  const html = await page.content(); // Browser "SSR" page for us! Get serialized DOM.
+  await browser.close();
+
+  PARTIALS_CACHE.set(url, html); // cache rendered page.
+
+  return html;
+}
+
+app.get('/ssr', async (req, res) => {
+  const html = await ssr(req.getOrigin());
+  // res.status(200).send(postsHTML);//await page.content());
+  res.status(200).send(html);
+});
+
 // app.delete('/posts/:year?/:month?/:idx?', async (req, res) => {
-//   const year = req.params.year;
+//   const year = req.params.year;r
+
 //   const month = req.params.month.padStart(2, '0');
 //   const itemsIdx = req.params.idx;
 
@@ -138,38 +168,18 @@ app.post('/posts', async (req, res) => {
 
 app.get('/tweets/:username', async (req, res) => {
   const username = req.params.username;
-  const t = new Twitter();
-  const tweets = await t.getTweets(username);
-  // for (const tweet of tweets) {
-    // console.log(tweet.created_at, tweet.text);
-  // }
-  res.status(200).json(tweets);
+  const twitter = new Twitter();
+  res.status(200).json(await twitter.getTweets(username));
 });
 
 app.get('/posts/update_rss', async (req, res) => {
   res.status(200).json(await feeds.updateFeeds());
 });
 
-app.get('/posts/:year?/:month?/:day?', async (req, res) => {
-  const year = req.params.year;
-  // Pad values if missing leading '0'.
-  const month = req.params.month ? req.params.month.padStart(2, '0') : null;
-  const day = req.params.day ? req.params.day.padStart(2, '0') : null;
-
-  const maxResults = req.query.maxresults ? Number(req.query.maxresults) : null;
-
-  // let path = '/posts';
-  // path += year ? year : '';
-  // path += month ? `/${month}` : '';
-  // path += day ? `/${day}` : '';
-
-  if (!year) {
-    return res.status(400).send({error: 'No year specified.'});
-  }
-
+async function getPosts(year, month, day, path, maxResults = null) {
   let items = [];
-  if (FIREBASE_CACHE.has(req.path)) {
-    items = FIREBASE_CACHE.get(req.path);
+  if (FIREBASE_CACHE.has(path)) {
+    items = FIREBASE_CACHE.get(path);
   } else {
     const postsCollection =  db.collection(year);
 
@@ -217,8 +227,8 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
     //   console.warn(`No posts exist for ${doc.id}.`);
     // }
 
-    if (CACHE_QUERIES) {
-      FIREBASE_CACHE.set(req.path, items);
+    if (CACHE_REST_QUERIES) {
+      FIREBASE_CACHE.set(path, items);
     }
   }
 
@@ -227,7 +237,22 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
     items = items.slice(0, maxResults);
   }
 
-  res.status(200).send(items);
+  return items;
+}
+
+app.get('/posts/:year?/:month?/:day?', async (req, res) => {
+  const year = req.params.year;
+  // Pad values if missing leading '0'.
+  const month = req.params.month ? req.params.month.padStart(2, '0') : null;
+  const day = req.params.day ? req.params.day.padStart(2, '0') : null;
+  const maxResults = req.query.maxresults ? Number(req.query.maxresults) : null;
+
+  if (!year) {
+    return res.status(400).send({error: 'No year specified.'});
+  }
+
+  const posts = await getPosts(year, month, day, req.path, maxResults);
+  res.status(200).send(posts);
 });
 
 const PORT = process.env.PORT || 8080;

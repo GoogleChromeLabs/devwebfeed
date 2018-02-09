@@ -90,9 +90,9 @@ function getAuthor(tab) {
       }
 
       const itemPropAuthor = document.querySelector('[itemprop="author"]');
-      const name = itemPropAuthor.querySelector('[itemprop="name"]') || itemPropAuthor;
-      if (itemPropAuthor) {
-        return itemPropAuthor.textContent.split(/\s/).filter(item => item).join(' ');
+      const name = itemPropAuthor ? itemPropAuthor.querySelector('[itemprop="name"]') || itemPropAuthor : null;
+      if (name) {
+        return name.textContent.split(/\s/).filter(item => item).join(' ');
       }
     }
     getAuthor();
@@ -117,7 +117,7 @@ async function sendPageInfo(submitter, tab) {
     author: await getAuthor(tab),
   };
 
-  const ORIGIN = 'https://devwebfeed.appspot.com';
+  const ORIGIN = 'https://devwebfeed.appspot.com'; //'http://localhost:8080';
 
   try {
     const resp = await fetch(`${ORIGIN}/posts`, {

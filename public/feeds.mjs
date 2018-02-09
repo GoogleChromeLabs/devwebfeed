@@ -49,8 +49,6 @@ async function updateFeeds() {
   });
 
   const results = (await Promise.all(promises)).map(feed => {
-    // console.log(feed);
-
     let author = '';
 
     // If feed has author, use it.
