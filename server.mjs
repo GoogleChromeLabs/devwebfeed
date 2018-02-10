@@ -18,55 +18,19 @@
 
 import fs from 'fs';
 import bodyParser from 'body-parser';
-import firebasedAdmin from 'firebase-admin';
+// import compression from 'compression';
+// import minify from 'express-minify';
 import express from 'express';
+import firebasedAdmin from 'firebase-admin';
 import puppeteer from 'puppeteer';
 
 import Twitter from './public/twitter.mjs';
 import * as feeds from './public/feeds.mjs';
 import * as util from './public/util.mjs';
-import {BLOG_TO_AUTHOR} from './public/shared.mjs';
+import * as dbHelper from './public/firebaseHelper.mjs';
 
-// const dbHelper = require('./public/db.mjs');
-// console.log(dbHelper.fetchPosts());
-
-firebasedAdmin.initializeApp({
-  // credential: firebasedAdmin.credential.applicationDefault()
-  credential: firebasedAdmin.credential.cert(
-      JSON.parse(fs.readFileSync('./serviceAccountKey.json')))
-});
-
-const db = firebasedAdmin.firestore();
-const app = express();
-
-const PARTIALS_CACHE = new Map();
-const FIREBASE_CACHE = new Map();
-const CACHE_REST_QUERIES = false;
-
-app.use(function forceSSL(req, res, next) {
-  if (req.hostname !== 'localhost' && req.get('X-Forwarded-Proto') === 'http') {
-    res.redirect(`https://${req.hostname}${req.url}`);
-  }
-  next();
-});
-
-app.use((req, res, next) => {
-  req.getCurrentUrl = () => `${req.protocol}://${req.get('host')}${req.originalUrl}`;
-  req.getOrigin = () => `${req.protocol}://${req.get('host')}`;
-  next();
-});
-
-// app.use(bodyParser.urlencoded({extended: true}));
-app.use(bodyParser.json());
-
-app.use(express.static('public', {extensions: ['html', 'htm']}));
-app.use(express.static('node_modules/lit-html'));
-// app.use(function cors(req, res, next) {
-//   res.header('Access-Control-Allow-Origin', '*');
-//   // res.header('Content-Type', 'application/json;charset=utf-8');
-//   // res.header('Cache-Control', 'public, max-age=300, s-maxage=600');
-//   next();
-// });
+const PORT = process.env.PORT || 8080;
+const RENDER_CACHE = new Map(); // Cache of pre-rendered HTML pages.
 
 function updateRSSFeedsDaily() {
   console.info('Updating RSS feeds...');
@@ -78,93 +42,64 @@ function updateRSSFeedsDaily() {
   setTimeout(updateRSSFeedsDaily, dayInMilliseconds);
 }
 
-/**
- * @return {!Promise} Resolves when the post has been added to the db.
- */
-async function newPost(post) {
-  const url = post.url;
-  const submitted = new Date(post.submitted);
-  const year = String(submitted.getFullYear());
-  const month = String(submitted.getMonth() + 1).padStart(2, '0');
-  const day = String(submitted.getDate()).padStart(2, '0');
-
-  const doc = db.collection(year).doc(month);
-  if (!(await doc.get()).exists) {
-    await doc.create({items: []});
-  }
-
-  const items = (await doc.get()).data().items;
-
-  // If post is from gist, lookup author name.
-  const githubAuthor = BLOG_TO_AUTHOR.find((item, i) => {
-    return item.github && url.match(item.github)
-  });
-  if (githubAuthor) {
-    post.author = githubAuthor.author;
-  }
-
-  // Don't add a dupe.
-  if (items.find(item => item.url === url)) {
-    return;
-  }
-
-  items.push(post);
-
-  return doc.update({items});
-}
-
-// /**
-//  * @return {!Promise} Resolves when the post has been deleted from the db.
-//  */
-// async function deletePost(year, month, url) {
-//   const doc = db.collection(year).doc(month);
-//   const items = (await doc.get()).data().items;
-//   const idx = items.findIndex(item => item.url === url);
-//   if (idx !== -1) {
-//     items.splice(idx, 1);
-//     return docRef.update({items});
-//   }
-// }
-
-app.post('/posts', async (req, res) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', 'Content-Type');
-  await newPost(req.body);
-  res.status(200).send('Success!');
-});
-
 async function ssr(url) {
-  if (PARTIALS_CACHE.has(url)) {
-    return PARTIALS_CACHE.get(url);
+  if (RENDER_CACHE.has(url)) {
+    return RENDER_CACHE.get(url);
   }
 
+  const tic = Date.now();
   const browser = await puppeteer.launch();
   const page = await browser.newPage();
   await page.goto(url, {waitUntil: 'domcontentloaded'});
   await page.waitForSelector('#posts'); // wait for posts to be in filled in page.
   const html = await page.content(); // Browser "SSR" page for us! Get serialized DOM.
   await browser.close();
+  console.info(`Headless chrome render time: ${Date.now() - tic}ms`);
 
-  PARTIALS_CACHE.set(url, html); // cache rendered page.
+  RENDER_CACHE.set(url, html); // cache rendered page.
 
   return html;
 }
 
-app.get('/ssr', async (req, res) => {
-  const html = await ssr(req.getOrigin());
-  // res.status(200).send(postsHTML);//await page.content());
-  res.status(200).send(html);
+dbHelper.setApp(firebasedAdmin.initializeApp({
+  // credential: firebasedAdmin.credential.applicationDefault()
+  credential: firebasedAdmin.credential.cert(
+      JSON.parse(fs.readFileSync('./serviceAccountKey.json')))
+}));
+
+const app = express();
+
+app.use(function forceSSL(req, res, next) {
+  if (req.hostname !== 'localhost' && req.get('X-Forwarded-Proto') === 'http') {
+    res.redirect(`https://${req.hostname}${req.url}`);
+  }
+  next();
 });
 
-// app.delete('/posts/:year?/:month?/:idx?', async (req, res) => {
-//   const year = req.params.year;r
+app.use(function addRequestHelpers(req, res, next) {
+  req.getCurrentUrl = () => `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+  req.getOrigin = () => `${req.protocol}://${req.get('host')}`;
+  next();
+});
 
-//   const month = req.params.month.padStart(2, '0');
-//   const itemsIdx = req.params.idx;
-
-//   await deletePost(year, month, itemsIdx);
-//   res.status(200).send('Success!');
+// app.use(minify());
+// app.use(compression()); // App Engine automtically gzips responses.
+// app.use(bodyParser.urlencoded({extended: true}));
+app.use(bodyParser.json());
+app.use(express.static('public', {extensions: ['html', 'htm']}));
+app.use(express.static('node_modules/lit-html'));
+// app.use(express.static('node_modules/firebase'));
+// app.use(function cors(req, res, next) {
+//   res.header('Access-Control-Allow-Origin', '*');
+//   // res.header('Content-Type', 'application/json;charset=utf-8');
+//   // res.header('Cache-Control', 'public, max-age=300, s-maxage=600');
+//   next();
 // });
+
+app.get('/ssr', async (req, res) => {
+  const html = await ssr(req.getOrigin());
+  res.status(200).send(html);
+});
 
 app.get('/tweets/:username', async (req, res) => {
   const username = req.params.username;
@@ -172,73 +107,24 @@ app.get('/tweets/:username', async (req, res) => {
   res.status(200).json(await twitter.getTweets(username));
 });
 
-app.get('/posts/update_rss', async (req, res) => {
-  res.status(200).json(await feeds.updateFeeds());
+// app.get('/admin/updaterss', async (req, res) => {
+//   res.status(200).json(await feeds.updateFeeds());
+// });
+
+app.post('/posts', async (req, res) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  await dbHelper.newPost(req.body);
+  res.status(200).send('Success!');
 });
 
-async function getPosts(year, month, day, path, maxResults = null) {
-  let items = [];
-  if (FIREBASE_CACHE.has(path)) {
-    items = FIREBASE_CACHE.get(path);
-  } else {
-    const postsCollection =  db.collection(year);
-
-    items = await feeds.collectRSSFeeds(); // First set RSS items.
-
-    // Filter out RSS items not in the year.
-    items = items.filter(item => {
-      const submitted = new Date(item.submitted);
-      return submitted.getFullYear() === parseInt(year);
-    });
-
-    if (month) {
-      // Filter out RSS items not in the month.
-      items = items.filter(item => {
-        const submitted = new Date(item.submitted);
-        return (submitted.getMonth() + 1) === parseInt(month);
-      });
-
-      const doc = await postsCollection.doc(month).get();
-      if (doc.exists) {
-        items.push(...doc.data().items);
-      }
-    } else {
-      const querySnapshot = await postsCollection.get();
-      for (const doc of querySnapshot.docs) {
-        items.push(...(await doc.ref.get()).data().items);
-      }
-    }
-
-    // Filter out items not in the day.
-    if (day) {
-      items = items.filter(item => {
-        const submitted = new Date(item.submitted);
-        return submitted.getDate() === parseInt(day);
-      });
-    }
-
-    // TODO: construct a db query that returns sorted results.
-    util.sortPosts(items);
-
-    // if (doc.exists) {
-    //   console.log(doc.data())
-    //   items = doc.data().items;
-    // } else {
-    //   console.warn(`No posts exist for ${doc.id}.`);
-    // }
-
-    if (CACHE_REST_QUERIES) {
-      FIREBASE_CACHE.set(path, items);
-    }
-  }
-
-  // TODO: use limit() on Firebase query.
-  if (maxResults) {
-    items = items.slice(0, maxResults);
-  }
-
-  return items;
-}
+// app.delete('/posts/:year?/:month?/:idx?', async (req, res) => {
+//   const year = req.params.year;r
+//   const month = req.params.month.padStart(2, '0');
+//   const itemsIdx = req.params.idx;
+//   await db.deletePost(year, month, itemsIdx);
+//   res.status(200).send('Success!');
+// });
 
 app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   const year = req.params.year;
@@ -251,11 +137,21 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
     return res.status(400).send({error: 'No year specified.'});
   }
 
-  const posts = await getPosts(year, month, day, req.path, maxResults);
+  const rssPosts = await feeds.collectRSSFeeds();
+  const posts = await dbHelper.getPosts(year, month, day, rssPosts, maxResults);
+
+  // TODO: monitor updates to other years. e.g. If the server is running when
+  // a new year occurs, it will need to be restarted to pick up updates to that
+  // new year.
+  // Note: this setups a single monitor (e.g. not one per request).
+  dbHelper.monitorRealtimeUpdateToPosts(util.currentYear, async changes => {
+    RENDER_CACHE.delete(req.getOrigin());
+    const html = await ssr(req.getOrigin());
+  });
+
   res.status(200).send(posts);
 });
 
-const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');

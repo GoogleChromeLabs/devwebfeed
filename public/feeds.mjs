@@ -18,7 +18,7 @@
 
 import url from 'url';
 const URL = url.URL;
-import rssParser from 'rss-parser';
+import RssParser from 'rss-parser';
 import {BLOG_TO_AUTHOR, FEEDS} from './shared.mjs';
 
 let FEEDS_CACHE = [];
@@ -30,11 +30,12 @@ class Feed {
 
   async update() {
     return new Promise((resolve, reject) => {
-      rssParser.parseURL(this.url, (err, resp) => {
+      let parser = new RssParser();
+      parser.parseURL(this.url, (err, feed) => {
         if (err) {
           return reject(err);
         }
-        resolve(resp.feed);
+        resolve(feed);
       });
     });
   }
@@ -62,7 +63,7 @@ async function updateFeeds() {
       author = foundAuthor.author;
     }
 
-    return feed.entries.map(post => {
+    return feed.items.map(post => {
       // Kill nasty GA tracking params.
       const u = new URL(post.link);
       u.searchParams.delete('utm_campaign');

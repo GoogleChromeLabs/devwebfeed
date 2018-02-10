@@ -1,3 +1,5 @@
+const ORIGIN = 'https://devwebfeed.appspot.com'; //'http://localhost:8080';
+
 let user = null;
 
 function authUser() {
@@ -116,8 +118,6 @@ async function sendPageInfo(submitter, tab) {
     },
     author: await getAuthor(tab),
   };
-
-  const ORIGIN = 'https://devwebfeed.appspot.com'; //'http://localhost:8080';
 
   try {
     const resp = await fetch(`${ORIGIN}/posts`, {

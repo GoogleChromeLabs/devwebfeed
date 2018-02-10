@@ -17,11 +17,11 @@
 import * as util from './util.mjs';
 import * as shared from './shared.mjs';
 import {renderPosts, container} from './render.mjs';
+import * as dbHelper from './firebaseHelper.mjs';
 
-firebase.initializeApp(shared.firebaseConfig);
-const db = firebase.firestore();
+dbHelper.setApp(firebase.initializeApp(shared.firebaseConfig));
 
-const _postsCache = [];
+const _posts = [];
 let _filteringBy = null;
 
 async function fetchPosts(url, maxResults = null) {
@@ -41,20 +41,6 @@ async function fetchPosts(url, maxResults = null) {
   }
 }
 
-/**
- * @return {!Promise} Resolves when the post has been deleted from the db.
- */
-async function deletePost(year, month, url) {
-  const doc = db.collection(year).doc(month);
-  const items = (await doc.get()).data().items;
-  const idx = items.findIndex(item => item.url === url);
-  if (idx !== -1) {
-    items.splice(idx, 1);
-    return docRef.update({items});
-  }
-  console.warn(`No post for ${url} in ${year}/${month}`);
-}
-
 function handleDelete(el, dateStr, url) {
   const date = new Date(dateStr);
   dateStr = date.toJSON();
@@ -64,13 +50,12 @@ function handleDelete(el, dateStr, url) {
     return false;
   }
 
-  deletePost(year, month, url); // async.
+  dbHelper.deletePost(year, month, url); // async.
 
   return false;
 }
 
 function filterBy(key, needle = null) {
-  let posts = _postsCache;
   const currentURL = new URL(location.href);
   const filterEl = document.querySelector('#filtering');
   const needleEl = filterEl.querySelector('.filtering-needle');
@@ -104,32 +89,31 @@ function clearFilters() {
 }
 
 /**
+ * @param {string} year Year to monitor updates for.
  * @param {!Array<!Object>} otherPosts Additional posts to render.
  */
-function realtimeUpdatePosts(otherPosts) {
+function realtimeUpdatePosts(year, otherPosts) {
   const originalTitle = document.title;
   let numChanges = 0;
-  let firstLoad = true;
 
   // Subscribe to real-time db updates for current year.
   // TODO: setup monitoring changes for previous years.
   // TODO: refresh UI if a previous year's post is deleted.
-  db.collection(util.currentYear).onSnapshot(querySnapshot => {
+  dbHelper.monitorRealtimeUpdateToPosts(year, changes => {
     if (document.hidden) {
       document.title = `(${++numChanges}) ${originalTitle}`;
     }
 
-    if (!firstLoad) {
-      // querySnapshot.docChanges.forEach(change => {
-      //   renderPosts([...change.doc.data().items, ...otherPosts], container);
-      // });
-      const thisYearsPosts = querySnapshot.docChanges[0].doc.data().items;
-      renderPosts([...thisYearsPosts, ...otherPosts], container);
-    }
+    // changes.forEach(change => {
+    //   renderPosts([...change.doc.data().items, ...otherPosts], container);
+    // });
+    // for (const change of changes) {
+    //   const items = change.doc.data().items;
+    // }
+    const posts = changes[0].doc.data().items;
 
-    // TODO: only render new posts. Currently render everything.
-    // util.debounceRenderPosts(posts, container);
-    firstLoad = false;
+    // TODO: only render deltas. Currently rendering everything.
+    renderPosts([...posts, ...otherPosts], container);
   });
 
   // Show additions as they come in the tab title.
@@ -137,8 +121,6 @@ function realtimeUpdatePosts(otherPosts) {
     if (!document.hidden && numChanges) {
       document.title = originalTitle;
       numChanges = 0;
-      // TODO: don't refresh entire page. Just refresh section.
-      location.reload();
     }
   });
 }
@@ -155,13 +137,13 @@ function realtimeUpdatePosts(otherPosts) {
     // Ensure list of rendered posts is unique based on URL.
     const posts = util.uniqueItemsByUrl(items);
 
-    _postsCache.push(...posts); // populate
+    _posts.push(...posts); // populate cache
 
     if (!ssr) {
       renderPosts(posts, container);
     }
 
-    realtimeUpdatePosts([...lastYearsPosts, ...tweets]);
+    realtimeUpdatePosts(util.currentYear, [...lastYearsPosts, ...tweets]);
 
     const params = new URL(location.href).searchParams;
     if (params.has('edit')) {
