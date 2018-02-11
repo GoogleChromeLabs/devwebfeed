@@ -89,19 +89,18 @@ main {
 
 header {
   text-align: center;
-  /* margin-bottom: calc(var(--default-padding) * 2); */
+}
+
+header .subtitle {
+  color: var(--material-blue-grey-300);
+  font-size: 18px;
+  margin-bottom: var(--default-padding);
 }
 
 header h4 {
   color: var(--material-blue-grey-300);
   font-size: 14px;
-  /* margin: 0 auto; */
-  margin-top: calc(var(--default-padding) / 2);
-  /* width: 50%; */
-}
-
-.title {
-  margin-bottom: var(--default-padding);
+  line-height: 1.2;
 }
 
 .overflow {
@@ -279,8 +278,8 @@ header h4 {
   display: none;
 }
 
-.remove_button[data-rss="true"] {
-  display: none;
+.remove_button[data-submitted-by-bot="true"] {
+  display: none !important;
 }
 
 .source_icon {

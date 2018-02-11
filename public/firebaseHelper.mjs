@@ -16,7 +16,6 @@
 
 import * as util from './util.mjs';
 import {BLOG_TO_AUTHOR} from './shared.mjs';
-// import {collectRSSFeeds} from './feeds.mjs';
 
 const CACHE_POSTS = false;
 const POSTS_CACHE = new Map(); // If CACHE_POSTS is true, RSS/Firebase posts are cached.
@@ -33,10 +32,11 @@ function setApp(firebaseApp) {
  */
 async function newPost(post) {
   const url = post.url;
+  const date = new Date(dateStr);
+  const year = String(date.getFullYear());
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
   const submitted = new Date(post.submitted);
-  const year = String(submitted.getFullYear());
-  const month = String(submitted.getMonth() + 1).padStart(2, '0');
-  const day = String(submitted.getDate()).padStart(2, '0');
 
   const doc = db.collection(year).doc(month);
   if (!(await doc.get()).exists) {
@@ -77,7 +77,7 @@ async function deletePost(year, month, url) {
   console.warn(`No post for ${url} in ${year}/${month}`);
 }
 
-async function getPosts(year, month, day, otherPosts, maxResults = null) {
+async function getPosts(year, month, day, otherPosts = [], maxResults = null) {
   let items = [];
 
   const cacheKey = `${year}-${month}-${day}`;
@@ -164,26 +164,6 @@ function monitorRealtimeUpdateToPosts(year, callback) {
     }
 
     callback(snapshot.docChanges);
-
-    snapshot.docChanges.forEach(change => {
-      const items = change.doc.data().items;
-
-      if (change.type === 'added') {
-        console.log("added");
-      }
-      if (change.type === 'modified') {
-        console.log('modified');
-      }
-      if (change.type === 'removed') {
-        console.log("modified");
-      }
-
-      if (items.length) {
-
-      }
-      // FIREBASE_CACHE.has(cacheKey)
-      // util.sortPosts(items);
-    });
   });
 }
 

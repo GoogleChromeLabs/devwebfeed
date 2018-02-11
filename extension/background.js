@@ -114,7 +114,8 @@ async function sendPageInfo(submitter, tab) {
     submitter: {
       name: submitter.name,
       email: submitter.email,
-      picture: submitter.picture
+      picture: submitter.picture,
+      bot: false,
     },
     author: await getAuthor(tab),
   };

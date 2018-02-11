@@ -100,7 +100,7 @@ function renderPosts(items, container) {
               </div>
               <div class="layout">
                 <a href="" class="remove_button" onclick="return handleDelete(this, '${date}', '${post.url}')"
-                   title="Remove this post" data-rss="${post.rss}"></a>
+                   title="Remove this post" data-submitted-by-bot="${post.submitter.bot || false}"></a>
                 ${renderPostIcon(post.submitter)}
               </div>
             </li>`;

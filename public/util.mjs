@@ -34,7 +34,7 @@ function debounce(func, wait, immediate) {
       func.apply(context, args);
     }
 	};
-};
+}
 
 // const debounceRenderPosts = debounce((posts, container) => {
 //   console.log('here');
@@ -55,14 +55,23 @@ function sortPosts(items) {
   }).reverse();
 }
 
-function uniqueItemsByUrl(items) {
-  // Return unique items based on url property.
+/**
+ * Unique items based on url property.
+ * @param {!Array} items
+ * @param {string} propName Property name to filter on.
+ */
+function uniqueByProperty(items, propName) {
   const posts = Array.from(items.reduce((map, item) => {
-    return map.set(item.url, item);
+    return map.set(item[propName], item);
   }, new Map()).values());
   return posts;
 }
 
+function uniquePosts(items) {
+  items = uniqueByProperty(items, 'url');
+  return uniqueByProperty(items, 'title');
+}
+
 export const currentYear = String((new Date()).getFullYear());
 
-export {sortPosts, debounce, uniqueItemsByUrl};
+export {sortPosts, debounce, uniquePosts};

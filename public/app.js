@@ -21,7 +21,7 @@ import * as dbHelper from './firebaseHelper.mjs';
 
 dbHelper.setApp(firebase.initializeApp(shared.firebaseConfig));
 
-const _posts = [];
+let _posts = [];
 let _filteringBy = null;
 
 async function fetchPosts(url, maxResults = null) {
@@ -50,7 +50,7 @@ function handleDelete(el, dateStr, url) {
     return false;
   }
 
-  dbHelper.deletePost(year, month, url); // async.
+  dbHelper.deletePost(year, month, url); // async
 
   return false;
 }
@@ -59,6 +59,7 @@ function filterBy(key, needle = null) {
   const currentURL = new URL(location.href);
   const filterEl = document.querySelector('#filtering');
   const needleEl = filterEl.querySelector('.filtering-needle');
+  let posts = _posts;
 
   // TODO: this clears all params...even those unrelated to filtering.
   for (const key of currentURL.searchParams.keys()) {
@@ -90,30 +91,36 @@ function clearFilters() {
 
 /**
  * @param {string} year Year to monitor updates for.
- * @param {!Array<!Object>} otherPosts Additional posts to render.
  */
-function realtimeUpdatePosts(year, otherPosts) {
+function realtimeUpdatePosts(year) {
   const originalTitle = document.title;
   let numChanges = 0;
 
   // Subscribe to real-time db updates for current year.
-  // TODO: setup monitoring changes for previous years.
-  // TODO: refresh UI if a previous year's post is deleted.
-  dbHelper.monitorRealtimeUpdateToPosts(year, changes => {
+  // TODO: setup monitoring changes for previous years. e.g. refresh UI if a
+ //  previous year's post is deleted.
+  dbHelper.monitorRealtimeUpdateToPosts(year, async changes => {
     if (document.hidden) {
       document.title = `(${++numChanges}) ${originalTitle}`;
     }
 
-    // changes.forEach(change => {
-    //   renderPosts([...change.doc.data().items, ...otherPosts], container);
-    // });
+    const month = changes[0].oldIndex; // Index in doc's maps to the the month.
+
+    _posts = _posts.filter(post => {
+      const s = new Date(post.submitted);
+      const inMonthAndYear = String(s.getFullYear()) === year && s.getMonth() === month;
+      return !inMonthAndYear || (inMonthAndYear && post.submitter.bot);
+    });
+
     // for (const change of changes) {
     //   const items = change.doc.data().items;
     // }
-    const posts = changes[0].doc.data().items;
+    const updatePosts = changes[0].doc.data().items;
 
-    // TODO: only render deltas. Currently rendering everything.
-    renderPosts([...posts, ...otherPosts], container);
+    _posts = util.uniquePosts([...updatePosts, ..._posts]); // update cache.
+
+    // TODO: only render deltas. Currently rendering the entire list.
+    renderPosts(_posts, container);
   });
 
   // Show additions as they come in the tab title.
@@ -125,25 +132,29 @@ function realtimeUpdatePosts(year, otherPosts) {
   });
 }
 
+async function getLatestPosts() {
+  const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
+  const thisYearsPosts = await fetchPosts(`/posts/${util.currentYear}`);
+  const tweets = await fetchPosts(`/tweets/ChromiumDev`);
+
+  // Ensure list of rendered posts is unique based on URL.
+  // Note: it already comes back sorted so we never need to sort client-side.
+  const posts = util.uniquePosts([...thisYearsPosts, ...lastYearsPosts, ...tweets]);
+
+  return posts;
+}
+
 (async() => {
   const ssr = container.querySelector('#posts');
 
   try {
-    const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
-    const thisYearsPosts = await fetchPosts(`/posts/${util.currentYear}`);
-    const tweets = await fetchPosts(`/tweets/ChromiumDev`);
-    const items = [...thisYearsPosts, ...lastYearsPosts, ...tweets];
-
-    // Ensure list of rendered posts is unique based on URL.
-    const posts = util.uniqueItemsByUrl(items);
-
-    _posts.push(...posts); // populate cache
+    _posts = await getLatestPosts(); // populate cache
 
     if (!ssr) {
-      renderPosts(posts, container);
+      renderPosts(_posts, container);
     }
 
-    realtimeUpdatePosts(util.currentYear, [...lastYearsPosts, ...tweets]);
+    realtimeUpdatePosts(util.currentYear);
 
     const params = new URL(location.href).searchParams;
     if (params.has('edit')) {

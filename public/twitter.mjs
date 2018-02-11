@@ -27,7 +27,8 @@ export default class Twitter {
             submitter: {
               name: 'Twitter BOT',
               email: 'Twitter',
-              picture: 'img/twitter_icon.png'
+              picture: 'img/twitter_icon.png',
+              bot: true,
               // picture: tweet.user.profile_image_url_https || 'img/twitter_icon.png',
             },
             author: screenName

@@ -143,10 +143,15 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   // TODO: monitor updates to other years. e.g. If the server is running when
   // a new year occurs, it will need to be restarted to pick up updates to that
   // new year.
-  // Note: this setups a single monitor (e.g. not one per request).
+  // Note: this setups a single realtime monitor (e.g. not one per request).
   dbHelper.monitorRealtimeUpdateToPosts(util.currentYear, async changes => {
-    RENDER_CACHE.delete(req.getOrigin());
-    const html = await ssr(req.getOrigin());
+    const url = req.getOrigin();
+    RENDER_CACHE.delete(url);
+
+    // Note: this is wasteful. We're proactively "precaching" the page again so
+    // the next time it's requested, first load is fast. Otherwise, the user
+    // that loads runs into the cache miss will a pef hit.
+    // await ssr(url);
   });
 
   res.status(200).send(posts);

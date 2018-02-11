@@ -84,10 +84,10 @@ async function updateFeeds() {
         submitter: {
           name: 'RSS BOT',
           email: 'RSS',
-          picture: 'img/rss_icon_24px.svg'
+          picture: 'img/rss_icon_24px.svg',
+          bot: true,
         },
         author,
-        rss: true,
       };
     });
   }).reduce((accum, item) => accum.concat(...item), []);
