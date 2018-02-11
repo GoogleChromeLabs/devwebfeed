@@ -32,6 +32,7 @@ export const FEEDS = [
   'https://ericbidelman.tumblr.com/rss',
   'https://jakearchibald.com/posts.rss',
   'https://paul.kinlan.me/index.xml',
+  'https://medium.com/feed/dev-channel',
   'https://medium.com/feed/@addyosmani',
   'https://medium.com/feed/@samthor',
   'https://robdodson.me/rss/',
