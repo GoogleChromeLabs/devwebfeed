@@ -48,7 +48,9 @@ async function ssr(url) {
   }
 
   const tic = Date.now();
-  const browser = await puppeteer.launch();
+  const browser = await puppeteer.launch({
+    args: ['--disable-dev-shm-usage']
+  });
   const page = await browser.newPage();
   await page.goto(url, {waitUntil: 'domcontentloaded'});
   await page.waitForSelector('#posts'); // wait for posts to be in filled in page.
@@ -151,7 +153,7 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
     // Note: this is wasteful. We're proactively "precaching" the page again so
     // the next time it's requested, first load is fast. Otherwise, the user
     // that loads runs into the cache miss will a pef hit.
-    // await ssr(url);
+    await ssr(url);
   });
 
   res.status(200).send(posts);
