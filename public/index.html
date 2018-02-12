@@ -16,15 +16,30 @@
 </head>
 <body>
 
+<aside id="help">
+  <div class="help-content">
+    <span class="layout center">
+      <a href="#" class="help-close layout" onclick="return toggleHelp()">
+        <img src="img/clear_white_24px.svg" width="18" height="18">
+      </a>
+      <b>Instructions</b>
+    </span>
+    <ul>
+      <li>Keep this page open! Posts show up in real-time as they're added.</li>
+      <li>Posts are sorted by added date. Not necessarily wnen they were published.</li>
+      <li>Clicking a <a href="?author=Paul+Kinlan">name</a> or <a href="?domain=medium.com">domain</a> filters the list.</li>
+    </ul>
+  </div>
+</aside>
+
 <main>
   <header>
     <hgroup>
-      <h1 class="title layout center-center">dev-web firehose
-        <!-- <span class="subtitle">articles, tuts, tweets, code snippets</span> -->
-      </h1>
-      <h4 class="subtitle">articles, tuts, tweets, code snippets</h4>
-      <h4><u>Keep this page open</u>! Posts update in real-time as they're added and are sorted by added date.<br>
-        Clicking a <a href="?author=Paul+Kinlan">name</a> or <a href="?domain=medium.com">domain</a> filters the list.</h4>
+    <h1 class="title layout center-center">dev-web firehose</h1>
+      <h4 class="subtitle layout center-center">
+        articles, tuts, tweets, code snippets
+        <a href="#" onclick="return toggleHelp()" class="layout"><img src="img/help_24px.svg" height="18" width="18" class="helpicon"></a>
+      </h4>
     </hgroup>
     <div id="filtering" class="layout center-center">
       <span>Filtering posts by "<span class="filtering-needle"></span>".</span>

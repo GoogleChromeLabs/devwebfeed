@@ -57,10 +57,9 @@ h1, h2, h3, h4 {
 }
 main {
   background: #fff;
-  padding: calc(var(--default-padding) * 2);
+  padding: var(--default-padding);
   position: relative;
 }
-
 
 [hidden] {
   display: none !important;
@@ -101,6 +100,49 @@ header h4 {
   color: var(--material-blue-grey-300);
   font-size: 14px;
   line-height: 1.2;
+}
+
+.helpicon {
+  margin-left: calc(var(--default-padding) / 2);
+}
+
+#help {
+  display: none;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  bottom: 0;
+  z-index: 10;
+  margin: 0 auto;
+}
+
+#help.active {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: rgba(255,255,255,0.6);
+}
+
+.help-close {
+  border: 1px solid currentColor;
+  margin-right: calc(var(--default-padding) / 2);
+}
+
+.help-content {
+  background: var(--material-blue-grey-300);
+  padding: calc(var(--default-padding) * 2);
+  border-radius: 5px;
+  color: #fff;
+}
+
+.help-content a {
+  color: currentColor;
+  text-decoration: underline;
+}
+
+.help-content ul {
+  line-height: 1.8;
+  margin: var(--default-padding) 0 0 -18px;
 }
 
 .overflow {
@@ -298,6 +340,7 @@ header h4 {
     margin: 72px auto;
     width: 60%;
     border-radius: 8px;
+    padding: calc(var(--default-padding) * 2);
   }
   main::before {
     --size: 50px;

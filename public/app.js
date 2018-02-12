@@ -132,6 +132,13 @@ function realtimeUpdatePosts(year) {
   });
 }
 
+function toggleHelp() {
+  const help = document.querySelector('#help');
+  help.classList.toggle('active');
+  document.body.style.overflow = help.classList.contains('active') ? 'hidden': null;
+  return false;
+}
+
 async function getLatestPosts() {
   const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
   const thisYearsPosts = await fetchPosts(`/posts/${util.currentYear}`);
@@ -174,3 +181,4 @@ async function getLatestPosts() {
 window.handleDelete = handleDelete;
 window.filterBy = filterBy;
 window.clearFilters = clearFilters;
+window.toggleHelp = toggleHelp;
