@@ -4,3 +4,4 @@ serviceAccountKey.json
 twitter_credentials.json
 *-error.log
 *.pem
+public/**/*.build.js

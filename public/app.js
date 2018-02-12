@@ -150,10 +150,12 @@ async function getLatestPosts() {
   try {
     _posts = await getLatestPosts(); // populate cache
 
+    // Posts are already rendered in the DOM for the SSR case. Don't re-render.
     if (!ssr) {
       renderPosts(_posts, container);
     }
 
+    // Subscribe to firestore updates.
     realtimeUpdatePosts(util.currentYear);
 
     const params = new URL(location.href).searchParams;
