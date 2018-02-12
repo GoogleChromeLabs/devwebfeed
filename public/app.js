@@ -133,9 +133,33 @@ function realtimeUpdatePosts(year) {
 }
 
 function toggleHelp() {
+  function handleOverlayClick(e) {
+    const helpContent = document.querySelector('.help-content');
+    if (!helpContent.contains(e.target)) {
+      toggleHelp();
+      help.removeEventListener('click', handleOverlayClick);
+    }
+  }
+
+  function handleKeyDown(e) {
+    if (e.keyCode === 27) {
+      toggleHelp();
+      document.body.removeEventListener('keyup', handleKeyDown);
+    }
+  }
+
   const help = document.querySelector('#help');
   help.classList.toggle('active');
-  document.body.style.overflow = help.classList.contains('active') ? 'hidden': null;
+
+  if (help.classList.contains('active')) {
+    document.body.style.overflow = 'hidden';
+    help.addEventListener('click', handleOverlayClick);
+    document.body.addEventListener('keyup', handleKeyDown);
+  } else {
+    document.body.style.overflow = '';
+    help.removeEventListener('click', handleOverlayClick);
+    document.body.removeEventListener('keyup', handleKeyDown);
+  }
   return false;
 }
 

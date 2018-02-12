@@ -90,6 +90,10 @@ header {
   text-align: center;
 }
 
+.title a {
+  text-decporation: none;
+}
+
 header .subtitle {
   color: var(--material-blue-grey-300);
   font-size: 18px;
