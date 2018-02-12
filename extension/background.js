@@ -22,12 +22,15 @@ function authUser() {
   });
 }
 
-chrome.browserAction.onClicked.addListener(tab => {
-  authUser().then(userInfo => {
-    chrome.identity.getProfileUserInfo(info => {
-      user = Object.assign(userInfo, info);
-      sendPageInfo(user, tab);
-    });
+chrome.browserAction.onClicked.addListener(async tab => {
+  const userInfo = await authUser();
+  chrome.identity.getProfileUserInfo(async info => {
+    user = Object.assign(userInfo, info);
+    const json = await sendPageInfo(user, tab);
+    chrome.browserAction.setBadgeText({text: 'OK'});
+    setTimeout(() => {
+      chrome.browserAction.setBadgeText({text: ''});
+    }, 3000);
   });
 });
 
@@ -120,6 +123,8 @@ async function sendPageInfo(submitter, tab) {
     author: await getAuthor(tab),
   };
 
+  console.log(data);
+
   try {
     const resp = await fetch(`${ORIGIN}/posts`, {
       method: 'POST',
@@ -130,23 +135,8 @@ async function sendPageInfo(submitter, tab) {
     if (!resp.ok || json.error) {
       throw Error(json.error);
     }
+    return json;
   } catch (err) {
     throw err;
   }
-
-  console.log(data);
 }
-
-// // This extension loads the saved background color for the current tab if one
-// // exists. The user can select a new background color from the dropdown for the
-// // current page, and it will be saved as part of the extension's isolated
-// // storage. The chrome.storage API is used for this purpose. This is different
-// // from the window.localStorage API, which is synchronous and stores data bound
-// // to a document's origin. Also, using chrome.storage.sync instead of
-// // chrome.storage.local allows the extension data to be synced across multiple
-// // user devices.
-// document.addEventListener('DOMContentLoaded', () => {
-//   getCurrentTabUrl((url) => {
-//     changeBackgroundColor('#ffcc00');
-//   });
-// });
