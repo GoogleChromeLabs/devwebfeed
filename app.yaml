@@ -1,6 +1,18 @@
 runtime: custom
 env: flex
+# service: backend
 
 automatic_scaling:
   min_num_instances: 1
-  # max_num_instances: 1
+  max_num_instances: 4
+
+resources:
+  cpu: 4
+  memory_gb: 16 # cpu * [0.9 - 6.5] - 0.4
+  disk_size_gb: 100
+
+skip_files:
+- ^extension/*
+- ^(.*/)?.*\.sh$
+- ^(.*/)?tests
+- ^(.*/)?.*\.md$
