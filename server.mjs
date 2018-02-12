@@ -109,9 +109,15 @@ app.get('/tweets/:username', async (req, res) => {
   res.status(200).json(await twitter.getTweets(username));
 });
 
-// app.get('/admin/updaterss', async (req, res) => {
-//   res.status(200).json(await feeds.updateFeeds());
-// });
+app.get('/admin/_updaterss', async (req, res) => {
+  res.status(200).json(await feeds.updateFeeds());
+});
+
+app.get('/admin/_updatetweets', async (req, res) => {
+  const username = req.params.username;
+  const twitter = new Twitter();
+  res.status(200).json(await twitter.updateTweets(username));
+});
 
 app.post('/posts', async (req, res) => {
   res.header('Access-Control-Allow-Origin', '*');
