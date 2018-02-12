@@ -23,6 +23,7 @@ dbHelper.setApp(firebase.initializeApp(shared.firebaseConfig));
 
 let _posts = [];
 let _filteringBy = null;
+const FILTERING_PARAMS = ['domain', 'author'];
 
 async function fetchPosts(url, maxResults = null) {
   try {
@@ -56,31 +57,39 @@ function handleDelete(el, dateStr, url) {
 }
 
 function filterBy(key, needle = null) {
+  if (key && !FILTERING_PARAMS.includes(key)) {
+    return;
+  }
+
   const currentURL = new URL(location.href);
+  const params = currentURL.searchParams;
   const filterEl = document.querySelector('#filtering');
   const needleEl = filterEl.querySelector('.filtering-needle');
-  let posts = _posts;
 
-  // TODO: this clears all params...even those unrelated to filtering.
-  for (const key of currentURL.searchParams.keys()) {
-    currentURL.searchParams.delete(key);
+  // Clear all previous filters.
+  for (const key of params.keys()) {
+    if (FILTERING_PARAMS.includes(key)) {
+      params.delete(key);
+    }
   }
+
+  let filteredPosts = _posts;
 
   // TODO: support filtering on more than one thing.
   if (needle === _filteringBy) {
-    currentURL.searchParams.delete(key);
+    params.delete(key);
     filterEl.classList.remove('on');
     _filteringBy = null;
   } else {
-    posts = posts.filter(post => post[key] === needle);
-    currentURL.searchParams.set(key, needle);
+    filteredPosts = filteredPosts.filter(post => post[key] === needle);
+    params.set(key, needle);
     needleEl.textContent = needle;
     filterEl.classList.add('on');
     _filteringBy = needle;
   }
 
   window.history.pushState(null, '', currentURL.href);
-  renderPosts(posts, container);
+  renderPosts(filteredPosts, container);
 }
 
 function clearFilters() {
@@ -176,17 +185,20 @@ async function getLatestPosts() {
 }
 
 (async() => {
-  const ssr = container.querySelector('#posts');
+  const PRE_RENDERED = container.querySelector('#posts'); // Already exists in DOM if we've SSR.
 
   try {
-    _posts = await getLatestPosts(); // populate cache
+    // Populates client-side cache for future realtime updates.
+    // Note: this basically results in 2x requests per page load, as we're
+    // making the same requests the server just made. Now repeating them client-side.
+    _posts = await getLatestPosts();
 
-    // Posts are already rendered in the DOM for the SSR case. Don't re-render.
-    if (!ssr) {
+     // Posts markup is already in place if we're SSRing. Don't re-render DOM.
+    if (!PRE_RENDERED) {
       renderPosts(_posts, container);
     }
 
-    // Subscribe to firestore updates.
+    // Subscribe to realtime firestore updates.
     realtimeUpdatePosts(util.currentYear);
 
     const params = new URL(location.href).searchParams;

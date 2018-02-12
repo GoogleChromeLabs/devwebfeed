@@ -18,6 +18,8 @@
 
 import fs from 'fs';
 import bodyParser from 'body-parser';
+import url from 'url';
+const URL = url.URL;
 // import compression from 'compression';
 // import minify from 'express-minify';
 import express from 'express';
@@ -42,21 +44,56 @@ function updateRSSFeedsDaily() {
   setTimeout(updateRSSFeedsDaily, dayInMilliseconds);
 }
 
-async function ssr(url) {
+/**
+ *
+ * @param url {string} URL to prerender.
+ * @param onlyCriticalRequests {boolean} Reduces the number of requests the
+ *     browser makes by aborting requests that are non-critical to rendering
+ *     the DOM of the page (stylesheets, images, media). True by default.
+ * @return {string} Serialized page output as an html string.
+ */
+async function ssr(url, onlyCriticalRequests = true) {
   if (RENDER_CACHE.has(url)) {
     return RENDER_CACHE.get(url);
   }
 
+  // Add param so client-side page can know it's being rendered by headless on the server.
+  const urlToFetch = new URL(url);
+  urlToFetch.searchParams.set('headless', '');
+
   const tic = Date.now();
   const browser = await puppeteer.launch({
-    args: ['--disable-dev-shm-usage']
+    args: ['--disable-dev-shm-usage'],
   });
   const page = await browser.newPage();
-  await page.goto(url, {waitUntil: 'domcontentloaded'});
+
+  // Small optimization. Since we only care about rendered DOM, ignore images,
+  // css, and other media that don't produce markup.
+  if (onlyCriticalRequests) {
+    await page.setRequestInterception(true);
+    page.on('request', req => {
+      const whitelist = ['document', 'script', 'xhr', 'fetch', 'websocket'];
+      if (whitelist.includes(req.resourceType())) {
+        req.continue();
+      } else {
+        req.abort();
+        // req.respond({
+        //   status: 200,
+        //   contentType: 'text/plain',
+        //   body: ''
+        // });
+      }
+    });
+  }
+
+  // TODO: another optimization may be to take enter page out of rendering pipeline.
+  // Add html { display: none } to page.
+
+  await page.goto(urlToFetch.href, {waitUntil: 'domcontentloaded'});
   await page.waitForSelector('#posts'); // wait for posts to be in filled in page.
-  const html = await page.content(); // Browser "SSR" page for us! Get serialized DOM.
+  const html = await page.content(); // Use browser to prerender page, get serialized DOM output!
   await browser.close();
-  console.info(`Headless chrome render time: ${Date.now() - tic}ms`);
+  console.info(`Headless rendered page in: ${Date.now() - tic}ms`);
 
   RENDER_CACHE.set(url, html); // cache rendered page.
 
@@ -99,7 +136,8 @@ app.use(express.static('node_modules/lit-html'));
 // });
 
 app.get('/ssr', async (req, res) => {
-  const html = await ssr(req.getOrigin());
+  const optimizeReqs = 'noreduce' in req.query ? false : true;
+  const html = await ssr(req.getOrigin(), optimizeReqs);
   res.status(200).send(html);
 });
 
