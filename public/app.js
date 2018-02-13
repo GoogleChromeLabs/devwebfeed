@@ -66,6 +66,8 @@ function filterBy(key, needle = null) {
   const filterEl = document.querySelector('#filtering');
   const needleEl = filterEl.querySelector('.filtering-needle');
 
+  filterEl.hidden = false;
+
   // Clear all previous filters.
   for (const key of params.keys()) {
     if (FILTERING_PARAMS.includes(key)) {
@@ -78,15 +80,15 @@ function filterBy(key, needle = null) {
   // TODO: support filtering on more than one thing.
   if (needle === _filteringBy) {
     params.delete(key);
-    filterEl.classList.remove('on');
     _filteringBy = null;
   } else {
     filteredPosts = filteredPosts.filter(post => post[key] === needle);
     params.set(key, needle);
     needleEl.textContent = needle;
-    filterEl.classList.add('on');
     _filteringBy = needle;
   }
+
+  setTimeout(() => filterEl.classList.toggle('on', _filteringBy !== null), 0);
 
   window.history.pushState(null, '', currentURL.href);
   renderPosts(filteredPosts, container);

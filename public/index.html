@@ -5,6 +5,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#37474F">
+  <link rel="icon" sizes="192x192" href="img/firehose.png">
+  <link rel="shortcut icon" href="img/firehose.png">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans">
   <link rel="stylesheet" href="styles.css">
   <!-- https://developers.google.com/web/updates/2017/12/modulepreload -->
@@ -41,7 +43,7 @@
         <a href="#" onclick="return toggleHelp()" class="layout"><img src="img/help_24px.svg" height="18" width="18" class="helpicon"></a>
       </h4>
     </hgroup>
-    <div id="filtering" class="layout center-center">
+    <div id="filtering" class="layout center-center" hidden>
       <span>Filtering posts by "<span class="filtering-needle"></span>".</span>
       <a href="#" class="filtering-clear" onclick="return clearFilters()"><img src="img/clear_white_24px.svg"></a>
     </div>
