@@ -229,11 +229,13 @@ header h4 {
   opacity: 0;
   will-change: opacity, margin;
   contain: content;
+  visibility: hidden;
 }
 
 #filtering.on {
   opacity: 1;
   margin-bottom: var(--default-padding);
+  visibility: visible;
 }
 
 #filtering a {
