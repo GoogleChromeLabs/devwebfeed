@@ -138,11 +138,17 @@ app.get('/tweets/:username', async (req, res) => {
   res.status(200).json(await twitter.getTweets(username));
 });
 
-app.get('/admin/update/rss', async (req, res) => {
+app.get('/admin/update/feeds', async (req, res) => {
+  if (!req.get('X-Appengine-Cron')) {
+    return res.status(403).send('Sorry, handler can only be run from a GAE cron.');
+  }
   res.status(200).json(await feeds.updateFeeds());
 });
 
 app.get('/admin/update/tweets/:username', async (req, res) => {
+  if (!req.get('X-Appengine-Cron')) {
+    return res.status(403).send('Sorry, handler can only be run from a GAE cron.');
+  }
   const username = req.params.username;
   res.status(200).json(await twitter.updateTweets(username));
 });
@@ -197,13 +203,13 @@ app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
 
-  async function updatePosts(updateFunction, msTimeout) {
-    await updateFunction.bind(twitter).call();
-    setTimeout(updatePosts, msTimeout);
-  }
+  // async function updatePosts(updateFunction, msTimeout) {
+  //   await updateFunction.bind(twitter).call();
+  //   setTimeout(updatePosts, msTimeout);
+  // }
 
-  // Warm the caches.
-  // TODO: move to cron.
-  updatePosts(feeds.updateFeeds, 1000 * 60 * 60 * 24); // every 24hrs
-  updatePosts(twitter.updateTweets, 1000 * 60 * 60 * 1); // every 1hrs
+  // // Warm the caches.
+  // // TODO: move to cron.
+  // updatePosts(feeds.updateFeeds, 1000 * 60 * 60 * 24); // every 24hrs
+  // updatePosts(twitter.updateTweets, 1000 * 60 * 60 * 1); // every 1hrs
 });

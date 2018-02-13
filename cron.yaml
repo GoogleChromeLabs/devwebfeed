@@ -1,0 +1,11 @@
+cron:
+- description: "Daily rss and feeds update"
+  url: /admin/update/feeds
+  schedule: every 2 hours
+  retry_parameters:
+    job_retry_limit: 2
+- description: "Tweests update"
+  url: /admin/update/tweets/ChromiumDev
+  schedule: every 5 minutes
+  retry_parameters:
+    job_retry_limit: 2
