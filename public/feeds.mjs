@@ -42,6 +42,9 @@ class Feed {
 }
 
 async function updateFeeds() {
+  console.info('Updating RSS feeds...');
+  const tic = Date.now();
+
   const promises = [];
 
   FEEDS.forEach(url => {
@@ -93,6 +96,8 @@ async function updateFeeds() {
   }).reduce((accum, item) => accum.concat(...item), []);
 
   FEEDS_CACHE = results;
+
+  console.info(`Feed update took ${(Date.now() - tic)/1000}s`);
 
   return results;
 }

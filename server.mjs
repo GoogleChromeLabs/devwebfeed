@@ -34,15 +34,7 @@ import * as dbHelper from './public/firebaseHelper.mjs';
 const PORT = process.env.PORT || 8080;
 const RENDER_CACHE = new Map(); // Cache of pre-rendered HTML pages.
 
-function updateRSSFeedsDaily() {
-  console.info('Updating RSS feeds...');
-  const dayInMilliseconds = 1000 * 60 * 60 * 24;
-  const tick = Date.now();
-  feeds.updateFeeds().then(() => {
-    console.info(`feed update took ${(Date.now() - tick)/1000}s`);
-  });
-  setTimeout(updateRSSFeedsDaily, dayInMilliseconds);
-}
+const twitter = new Twitter('ChromiumDev');
 
 /**
  *
@@ -143,17 +135,15 @@ app.get('/ssr', async (req, res) => {
 
 app.get('/tweets/:username', async (req, res) => {
   const username = req.params.username;
-  const twitter = new Twitter();
   res.status(200).json(await twitter.getTweets(username));
 });
 
-app.get('/admin/_updaterss', async (req, res) => {
+app.get('/admin/update/rss', async (req, res) => {
   res.status(200).json(await feeds.updateFeeds());
 });
 
-app.get('/admin/_updatetweets', async (req, res) => {
+app.get('/admin/update/tweets/:username', async (req, res) => {
   const username = req.params.username;
-  const twitter = new Twitter();
   res.status(200).json(await twitter.updateTweets(username));
 });
 
@@ -206,5 +196,14 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
-  updateRSSFeedsDaily();
+
+  async function updatePosts(updateFunction, msTimeout) {
+    await updateFunction.bind(twitter).call();
+    setTimeout(updatePosts, msTimeout);
+  }
+
+  // Warm the caches.
+  // TODO: move to cron.
+  updatePosts(feeds.updateFeeds, 1000 * 60 * 60 * 24); // every 24hrs
+  updatePosts(twitter.updateTweets, 1000 * 60 * 60 * 1); // every 1hrs
 });

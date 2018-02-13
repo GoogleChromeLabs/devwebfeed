@@ -6,10 +6,15 @@ const TWITTER_CREDENTIALS = JSON.parse(fs.readFileSync('./twitter_credentials.js
 const CACHE = new Map();
 
 export default class Twitter {
-  constructor() {
+  constructor(screenName = null) {
     this.client = new TwitterAPI(TWITTER_CREDENTIALS);
+    this.screenName = screenName;
   }
-  async updateTweets(screenName) {
+
+  async updateTweets(screenName = this.screenName) {
+    console.info('Updating Tweets...');
+    const tic = Date.now();
+
     let tweets = [];
 
     try {
@@ -43,10 +48,12 @@ export default class Twitter {
     // TODO: don't grow cache for every user.
     CACHE.set(screenName, tweets);
 
+    console.info(`Tweets from ${screenName} update took ${(Date.now() - tic)/1000}s`);
+
     return tweets;
   }
 
-  async getTweets(screenName) {
+  async getTweets(screenName = this.screenName) {
     if (CACHE.has(screenName)) {
       return CACHE.get(screenName);
     }
