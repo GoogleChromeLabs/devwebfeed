@@ -15,7 +15,7 @@
 }
 body {
   --icon-padding: calc(var(--default-padding) * 2);
-  font-family: 'Google Sans', 'Produce Sans', sans-serif;
+  font-family: 'Google Sans', 'Product Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   line-height: 1.8;
   margin: 0;

@@ -38,14 +38,15 @@ const twitter = new Twitter('ChromiumDev');
 
 /**
  *
- * @param url {string} URL to prerender.
- * @param onlyCriticalRequests {boolean} Reduces the number of requests the
+ * @param {string} url The url to prerender.
+ * @param {boolean} useCache Whether to consult the cache. Default is true.
+ * @param {boolean} onlyCriticalRequests Reduces the number of requests the
  *     browser makes by aborting requests that are non-critical to rendering
  *     the DOM of the page (stylesheets, images, media). True by default.
  * @return {string} Serialized page output as an html string.
  */
-async function ssr(url, onlyCriticalRequests = true) {
-  if (RENDER_CACHE.has(url)) {
+async function ssr(url, useCache = true, onlyCriticalRequests = true) {
+  if (useCache && RENDER_CACHE.has(url)) {
     return RENDER_CACHE.get(url);
   }
 
@@ -101,7 +102,8 @@ dbHelper.setApp(firebasedAdmin.initializeApp({
 const app = express();
 
 app.use(function forceSSL(req, res, next) {
-  if (req.hostname !== 'localhost' && req.get('X-Forwarded-Proto') === 'http') {
+  const fromCron = req.get('X-Appengine-Cron');
+  if (!fromCron && req.hostname !== 'localhost' && req.get('X-Forwarded-Proto') === 'http') {
     res.redirect(`https://${req.hostname}${req.url}`);
   }
   next();
@@ -128,8 +130,12 @@ app.use(express.static('node_modules/lit-html'));
 // });
 
 app.get('/ssr', async (req, res) => {
+  const url = req.getOrigin();
+  const useCache = 'nocache' in req.query ? false : true;
   const optimizeReqs = 'noreduce' in req.query ? false : true;
-  const html = await ssr(req.getOrigin(), optimizeReqs);
+  const html = await ssr(url, useCache, optimizeReqs);
+  // Push styles.
+  res.header('Link', `<${url}/styles.css>; rel=preload; as=style`);
   res.status(200).send(html);
 });
 

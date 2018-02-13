@@ -12,7 +12,8 @@
     "build": "docker build -t team-contributions .",
     "build-app": "babel --plugins transform-es2015-modules-commonjs -o ./public/app.build.js ./public/app.js",
     "restart": "docker kill team-contributions; yarn build && docker run -dit -p 8080:8080 --rm --name team-contributions --cap-add=SYS_ADMIN team-contributions",
-    "deploy": "gcloud app deploy app.yaml --project devwebfeed"
+    "deploy": "gcloud app deploy app.yaml --project devwebfeed",
+    "deploy:cron": "gcloud app deploy cron.yaml --project devwebfeed"
   },
   "dependencies": {
     "babel-cli": "^6.26.0",
