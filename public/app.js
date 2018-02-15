@@ -23,7 +23,10 @@ dbHelper.setApp(firebase.initializeApp(shared.firebaseConfig));
 
 let _posts = [];
 let _filteringBy = null;
+const _includeTweets = true;//localStorage.getItem('includeTweets') === 'true';
 const FILTERING_PARAMS = ['domain', 'author'];
+
+const includeTweetsCheckbox = document.querySelector('#toggletweets');
 
 async function fetchPosts(url, maxResults = null) {
   try {
@@ -56,6 +59,11 @@ function handleDelete(el, dateStr, url) {
   return false;
 }
 
+function isTweet(post) {
+  const twitterDomain = new URL(post.url).host.match('twitter.com');
+  return post.submitter.bot && twitterDomain;
+}
+
 function filterBy(key, needle = null) {
   if (key && !FILTERING_PARAMS.includes(key)) {
     return;
@@ -75,7 +83,7 @@ function filterBy(key, needle = null) {
     }
   }
 
-  let filteredPosts = _posts;
+  let filteredPosts = _includeTweets ? _posts : _posts.filter(p => !isTweet(p));
 
   // TODO: support filtering on more than one thing.
   if (needle === _filteringBy) {
@@ -87,6 +95,8 @@ function filterBy(key, needle = null) {
     needleEl.textContent = needle;
     _filteringBy = needle;
   }
+
+  includeTweetsCheckbox.disabled = _filteringBy;
 
   setTimeout(() => filterEl.classList.toggle('on', _filteringBy !== null), 0);
 
@@ -174,6 +184,14 @@ function toggleHelp() {
   return false;
 }
 
+// includeTweetsCheckbox.checked = _includeTweets;
+// includeTweetsCheckbox.addEventListener('change', e => {
+//   _includeTweets = e.target.checked;
+//   localStorage.setItem('includeTweets', _includeTweets);
+//   const posts = _includeTweets ? _posts : _posts.filter(p => !isTweet(p));
+//   renderPosts(posts, container);
+// });
+
 async function getLatestPosts() {
   const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
   const thisYearsPosts = await fetchPosts(`/posts/${util.currentYear}`);
@@ -189,21 +207,26 @@ async function getLatestPosts() {
 (async() => {
   const PRE_RENDERED = container.querySelector('#posts'); // Already exists in DOM if we've SSR.
 
+  const params = new URL(location.href).searchParams;
+
   try {
     // Populates client-side cache for future realtime updates.
     // Note: this basically results in 2x requests per page load, as we're
     // making the same requests the server just made. Now repeating them client-side.
     _posts = await getLatestPosts();
 
+    let posts = _posts;
+    // if (!_includeTweets) {
+    //   posts = _posts.filter(p => !isTweet(p));
+    // }
+
      // Posts markup is already in place if we're SSRing. Don't re-render DOM.
     if (!PRE_RENDERED) {
-      renderPosts(_posts, container);
+      renderPosts(posts, container);
     }
 
-    // Subscribe to realtime firestore updates.
-    realtimeUpdatePosts(util.currentYear);
+    realtimeUpdatePosts(util.currentYear);  // Subscribe to realtime firestore updates.
 
-    const params = new URL(location.href).searchParams;
     if (params.has('edit')) {
       container.classList.add('edit');
     } else {

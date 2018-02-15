@@ -325,7 +325,7 @@ header h4 {
   display: none;
 }
 
-.remove_button[data-submitted-by-bot="true"] {
+.post[data-submitted-by-bot="true"] .remove_button {
   display: none !important;
 }
 

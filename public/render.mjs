@@ -86,7 +86,7 @@ function renderPosts(items, container) {
           const by = post.author ? `by ${post.author}` : '';
 
           return html`
-            <li class="post layout start">
+            <li class="post layout start" data-domain="${post.domain}" data-submitted-by-bot="${post.submitter.bot || false}">
               <div class="overflow flex layout vertical" title="${post.title}">
                 <div class="layout overflow">
                   <a class="post_child post_title" href="${post.url}" target="_blank">${post.title}</a>
@@ -100,7 +100,7 @@ function renderPosts(items, container) {
               </div>
               <div class="layout">
                 <a href="" class="remove_button" onclick="return handleDelete(this, '${date}', '${post.url}')"
-                   title="Remove this post" data-submitted-by-bot="${post.submitter.bot || false}"></a>
+                   title="Remove this post"></a>
                 ${renderPostIcon(post.submitter)}
               </div>
             </li>`;
