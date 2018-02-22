@@ -35,73 +35,146 @@ const RENDER_CACHE = new Map(); // Cache of pre-rendered HTML pages.
 
 const twitter = new Twitter('ChromiumDev');
 
+let browserWSEndpoint = null;
+
+// Async route handlers are wrapped with this to catch rejected promise errors.
+const catchAsyncErrors = fn => (req, res, next) => {
+  Promise.resolve(fn(req, res, next)).catch(next);
+};
+
 /**
+ * Server-side renders a URL using headless chrome.
+ *
+ * Measurements:
+ *   - onlyCriticalRequests: true reduces total render time by < 50ms (<2% slowdown)
+ *   compared to no optimizations
+ *   - inlineStyles: true appears to add negligible overhead.
+ *   - TODO: see if these opts actually matter for FMP in the browser, especially on mobile.
  *
  * @param {string} url The url to prerender.
- * @param {boolean} useCache Whether to consult the cache. Default is true.
- * @param {boolean} inlineStyles Whether to inline stylesheets. True by default.
- * @param {boolean} onlyCriticalRequests Reduces the number of requests the
- *     browser makes by aborting requests that are non-critical to rendering
- *     the DOM of the page (stylesheets, images, media). True by default.
+ * @param {!Object} config Optional config settings.
+ *     useCache: Whether to consult the cache. Default is true.
+ *     inlineStyles: Whether to inline local stylesheets. True by default.
+ *     inlineScripts: Whether to inline local scripts. True by default.
+ *     onlyCriticalRequests: Reduces the number of requests the
+ *         browser makes by aborting requests that are non-critical to rendering
+ *         the DOM of the page (stylesheets, images, media). True by default.
+ *     reuseChrome: Set to false to relaunch a new isntance of Chrome on every call. Default is false.
+ *     headless: Set to false to launch headlful chrome. Default is true. Note: this param will
+ *         have no effect if Chrome was launched at least once with reuseChrome: true.
  * @return {string} Serialized page output as an html string.
  */
-async function ssr(url, useCache = true, inlineStyles = true, onlyCriticalRequests = true) {
+async function ssr(url, {useCache = true, onlyCriticalRequests = true,
+                         inlineStyles = true, inlineScripts = true,
+                         reuseChrome = false, headless = true} = {}) {
   if (useCache && RENDER_CACHE.has(url)) {
     return RENDER_CACHE.get(url);
   }
 
   const tic = Date.now();
-  const browser = await puppeteer.launch({
-    args: ['--disable-dev-shm-usage'],
-  });
+  // Reuse existing browser instance or launch a new one.
+  let browser;
+  if (browserWSEndpoint && reuseChrome) {
+    console.info('Reusing existing chrome instance');
+    browser = await puppeteer.connect({browserWSEndpoint});
+  } else {
+    browser = await puppeteer.launch({
+      args: ['--disable-dev-shm-usage'],
+      headless,
+    });
+    browserWSEndpoint = await browser.wsEndpoint();
+  }
+
   const page = await browser.newPage();
 
   // Small optimization. Since we only care about rendered DOM, ignore images,
-  // other media that don't produce markup. Alo keep CSS requests so we can
-  // read their responses later.
+  // other media that don't produce markup
   if (onlyCriticalRequests) {
     await page.setRequestInterception(true);
+    const whitelist = ['document', 'script', 'xhr', 'fetch', 'websocket'];
     page.on('request', req => {
-      const whitelist = ['document', 'stylesheet', 'script', 'xhr', 'fetch', 'websocket'];
+      // Keep CSS requests so we can read their responses later to inline.
+      if (inlineStyles) {
+        whitelist.push('stylesheet');
+      }
       whitelist.includes(req.resourceType()) ? req.continue() : req.abort();
     });
   }
 
-  const sheetsToCSS = {};
+  const stylesheetContents = {};
+  const scriptsContents = {};
 
-  page.on('response', async resp => {
-    const href = resp.url();
-    // Only consider local stylesheets to the site.
-    if (resp.request().resourceType() === 'stylesheet' && href.startsWith(url)) {
-      sheetsToCSS[href] = await resp.text();
-    }
-  });
+  if (inlineStyles || inlineScripts) {
+    page.on('response', async resp => {
+      const href = resp.url();
+      const type = resp.request().resourceType();
+      const sameOriginResource = href.startsWith(url);
+      // Only inline local resources.
+      if (sameOriginResource) {
+        if (type === 'stylesheet') {
+          stylesheetContents[href] = await resp.text();
+        } else if (type === 'script') {
+          scriptsContents[href] = await resp.text();
+        }
+      }
+    });
+  }
 
   // TODO: another optimization might be to take entire page out of rendering
-  // path by adding html { display: none } before page loads.
+  // path by adding html { display: none } before page loads. However, this may
+  // cause any script that looks at layout to fail e.g. IntersectionObserver.
 
   // Add param so client-side page can know it's being rendered by headless on the server.
   const urlToFetch = new URL(url);
   urlToFetch.searchParams.set('headless', '');
 
-  await page.goto(urlToFetch.href, {waitUntil: 'domcontentloaded'});
-  await page.waitForSelector('#posts'); // wait for posts to be in filled in page.
+  // await page.evaluateOnNewDocument(() => localStorage.setItem('includeTweets', false));
+
+  try {
+    await page.goto(urlToFetch.href, {waitUntil: 'domcontentloaded'});
+    await page.waitForSelector('#posts'); // wait for posts to be in filled in page.
+  } catch (err) {
+    await browser.close();
+    browserWSEndpoint = null;
+    throw new Error('page.goto/waitForSelector timed out.');
+  }
 
   if (inlineStyles) {
-    await page.$$eval('link[rel="stylesheet"]', (sheets, sheetsToCSS) => {
+    await page.$$eval('link[rel="stylesheet"]', (sheets, stylesheetContents) => {
       sheets.forEach(link => {
-        const css = sheetsToCSS[link.href];
+        const css = stylesheetContents[link.href];
         if (css) {
           const style = document.createElement('style');
           style.textContent = css;
           link.replaceWith(style);
         }
       });
-    }, sheetsToCSS);
+    }, stylesheetContents);
+  }
+
+  if (inlineScripts) {
+    await page.$$eval('script[src]', (scripts, scriptsContents) => {
+      scripts.forEach(script => {
+        const js = scriptsContents[script.src];
+        if (js) {
+          const s = document.createElement('script');
+          // s.text = js;
+          // Note: not using script.text b/c here we don't need to eval the script.
+          // Thaat will be done client side when the browser renders the page.
+          s.textContent = js;
+          s.type = script.getAttribute('type') || null;
+          script.replaceWith(s);
+        }
+      });
+    }, scriptsContents);
   }
 
   const html = await page.content(); // Use browser to prerender page, get serialized DOM output!
-  await browser.close();
+  if (browserWSEndpoint && reuseChrome) {
+    await page.close();
+  } else {
+    await browser.close();
+  }
   console.info(`Headless rendered page in: ${Date.now() - tic}ms`);
 
   RENDER_CACHE.set(url, html); // cache rendered page.
@@ -180,15 +253,24 @@ app.use(express.static('node_modules/lit-html'));
 //   // s.push(null);
 // });
 
-app.get('/ssr', async (req, res) => {
-  const url = req.getOrigin();
-  const useCache = 'nocache' in req.query ? false : true;
-  const inlineStyles = 'noinline' in req.query ? false : true;
-  const optimizeReqs = 'noreduce' in req.query ? false : true;
-  const html = await ssr(url, useCache, inlineStyles, optimizeReqs);
+app.get('/ssr', catchAsyncErrors(async (req, res) => {
+  // This ignores other query params on the URL besides the tweets.
+  const url = new URL(req.getOrigin());
+  if ('tweets' in req.query) {
+    url.searchParams.set('tweets', '');
+  }
+
+  const html = await ssr(url.href, {
+    useCache: 'nocache' in req.query ? false : true,
+    inlineStyles: 'noinline' in req.query ? false : true,
+    inlineScripts: 'noinline' in req.query ? false : true,
+    onlyCriticalRequests: 'noreduce' in req.query ? false : true,
+    reuseChrome: 'reusechrome' in req.query ? true : false,
+    headless: 'noheadless' in req.query ? false : true,
+  });
   // res.append('Link', `<${url}/styles.css>; rel=preload; as=style`); // Push styles.
   res.status(200).send(html);
-});
+}));
 
 app.get('/tweets/:username', async (req, res) => {
   const username = req.params.username;
@@ -269,4 +351,19 @@ app.listen(PORT, () => {
   // // TODO: move to cron.
   // updatePosts(feeds.updateFeeds, 1000 * 60 * 60 * 24); // every 24hrs
   // updatePosts(twitter.updateTweets, 1000 * 60 * 60 * 1); // every 1hrs
+});
+
+
+// Make sure node server process stops if we get a terminating signal.
+function processTerminator(sig) {
+  if (typeof sig === 'string') {
+    process.exit(1);
+  }
+  console.log('%s: Node server stopped.', Date(Date.now()));
+}
+
+['SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT',
+'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGTERM'
+].forEach(sig => {
+  process.once(sig, () => processTerminator(sig));
 });
