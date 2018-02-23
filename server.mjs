@@ -253,6 +253,10 @@ app.use(express.static('node_modules/lit-html'));
 //   // s.push(null);
 // });
 
+// Client-side version, 3G Slow:
+//   FP: 4s, FCP: 11s
+// SSR render, 3G Slow:
+//   FP/FCP: 2.3s, 8.37s faster!
 app.get('/ssr', catchAsyncErrors(async (req, res) => {
   // This ignores other query params on the URL besides the tweets.
   const url = new URL(req.getOrigin());

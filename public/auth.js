@@ -43,8 +43,8 @@ export default class GSignIn {
 
     this.token = JSON.parse(localStorage.getItem('token'));
     if (this.token) {
-// Add back in if token doesnt refresh
-      // const profileInfo = await this.getTokenInfo(this.token.accessToken);
+      // Refreshes the token if it has expired.
+      const profileInfo = await this.getTokenInfo(this.token.accessToken);
 
       const expiresOn = new Date(this.token.exp * 1000);
       const now = new Date();
