@@ -1,59 +1,44 @@
-const ORIGIN = 'https://devwebfeed.appspot.com'; //'http://localhost:8080';
-
-let user = null;
+const ORIGIN = 'https://devwebfeed.appspot.com';
 
 function authUser() {
-  return new Promise(resolve => {
+  return new Promise((resolve, reject) => {
     // Note: getAuthToken caches token, so it's safe to call repeatedly.
     chrome.identity.getAuthToken({interactive: true}, async token => {
       if (chrome.runtime.lastError) {
         console.error(chrome.runtime.lastError.message);
-        return resolve();
+        return reject(token);
       }
 
-      // Return cached user.
-      if (user) {
-        return resolve(user);
-      }
-
+      // TODO: consider caching profile response.
       const resp = await fetch(`https://www.googleapis.com/oauth2/v2/userinfo?alt=json&access_token=${token}`);
-      resolve(await resp.json());
+      const json = await resp.json();
+      if (json.error) {
+        console.error(json.error.message);
+        return reject(token);
+      }
+
+      resolve(json);
     });
   });
 }
 
 chrome.browserAction.onClicked.addListener(async tab => {
-  const userInfo = await authUser();
-  chrome.identity.getProfileUserInfo(async info => {
-    user = Object.assign(userInfo, info);
-    const json = await sendPageInfo(user, tab);
-    chrome.browserAction.setBadgeText({text: 'OK'});
-    setTimeout(() => {
-      chrome.browserAction.setBadgeText({text: ''});
-    }, 3000);
-  });
+  try {
+    const userInfo = await authUser();
+    chrome.identity.getProfileUserInfo(async profileInfo => {
+      const user = Object.assign(userInfo, profileInfo);
+      const json = await sendPageInfo(user, tab);
+
+      chrome.browserAction.setBadgeText({text: 'OK'});
+      setTimeout(() => chrome.browserAction.setBadgeText({text: ''}), 3000);
+    });
+  } catch (err) {
+    // Revoke token. User needs to click button again.
+    chrome.identity.removeCachedAuthToken({token}, () => {
+      console.info('Cached token revoked');
+    });
+  }
 });
-
-// chrome.identity.removeCachedAuthToken({token}, () => {
-
-// });
-
-// function getCurrentTabUrl(callback) {
-//   chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
-//     // chrome.tabs.query invokes the callback with a list of tabs that match the
-//     // query. When the popup is opened, there is certainly a window and at least
-//     // one tab, so we can safely assume that |tabs| is a non-empty array.
-//     // A window can only have one active tab at a time, so the array consists of
-//     // exactly one tab.
-//     const tab = tabs[0];
-
-//     const url = tab.url;
-
-//     console.assert(typeof url === 'string', 'tab.url should be a string');
-
-//     callback(url);
-//   });
-// }
 
 function getCanonicalLink(tab) {
   return new Promise(resolve => {
