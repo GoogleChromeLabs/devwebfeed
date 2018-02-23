@@ -23,10 +23,7 @@ dbHelper.setApp(firebase.initializeApp(shared.firebaseConfig));
 
 let _posts = [];
 let _filteringBy = null;
-const _includeTweets = true;//localStorage.getItem('includeTweets') === 'true';
-const FILTERING_PARAMS = ['domain', 'author'];
-
-const includeTweetsCheckbox = document.querySelector('#toggletweets');
+let auth;
 
 async function fetchPosts(url, maxResults = null) {
   try {
@@ -46,26 +43,25 @@ async function fetchPosts(url, maxResults = null) {
 }
 
 function handleDelete(el, dateStr, url) {
-  const date = new Date(dateStr);
-  dateStr = date.toJSON();
-  const [year, month, day] = dateStr.split('-');
-
   if (!confirm('Are you sure you want to delete this post?')) {
     return false;
   }
 
-  dbHelper.deletePost(year, month, url); // async
+  auth.authenticated().then(token => {
+    const date = new Date(dateStr);
+    dateStr = date.toJSON();
+    const [year, month, day] = dateStr.split('-');
+
+    dbHelper.deletePost(year, month, url); // async
+  });
 
   return false;
 }
 
-function isTweet(post) {
-  const twitterDomain = new URL(post.url).host.match('twitter.com');
-  return post.submitter.bot && twitterDomain;
-}
-
 function filterBy(key, needle = null) {
-  if (key && !FILTERING_PARAMS.includes(key)) {
+  const filteringParams = ['domain', 'author'];
+
+  if (key && !filteringParams.includes(key)) {
     return;
   }
 
@@ -78,12 +74,12 @@ function filterBy(key, needle = null) {
 
   // Clear all previous filters.
   for (const key of params.keys()) {
-    if (FILTERING_PARAMS.includes(key)) {
+    if (filteringParams.includes(key)) {
       params.delete(key);
     }
   }
 
-  let filteredPosts = _includeTweets ? _posts : _posts.filter(p => !isTweet(p));
+  let filteredPosts = _posts;
 
   // TODO: support filtering on more than one thing.
   if (needle === _filteringBy) {
@@ -95,8 +91,6 @@ function filterBy(key, needle = null) {
     needleEl.textContent = needle;
     _filteringBy = needle;
   }
-
-  includeTweetsCheckbox.disabled = _filteringBy;
 
   setTimeout(() => filterEl.classList.toggle('on', _filteringBy !== null), 0);
 
@@ -184,24 +178,43 @@ function toggleHelp() {
   return false;
 }
 
-// includeTweetsCheckbox.checked = _includeTweets;
-// includeTweetsCheckbox.addEventListener('change', e => {
-//   _includeTweets = e.target.checked;
-//   localStorage.setItem('includeTweets', _includeTweets);
-//   const posts = _includeTweets ? _posts : _posts.filter(p => !isTweet(p));
-//   renderPosts(posts, container);
-// });
-
-async function getLatestPosts() {
-  const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
+async function getLatestPosts(includeTweets) {
+  // const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
   const thisYearsPosts = await fetchPosts(`/posts/${util.currentYear}`);
-  const tweets = await fetchPosts(`/tweets/ChromiumDev`);
+
+  // const posts = util.uniquePosts([...thisYearsPosts, ...lastYearsPosts, ...tweets]);
+  const posts = thisYearsPosts;
+  if (includeTweets) {
+    const tweets = await fetchPosts(`/tweets/ChromiumDev`);
+    posts.push(...tweets);
+  }
 
   // Ensure list of rendered posts is unique based on URL.
-  // Note: it already comes back sorted so we never need to sort client-side.
-  const posts = util.uniquePosts([...thisYearsPosts, ...lastYearsPosts, ...tweets]);
+  return util.uniquePosts(posts);
+}
 
-  return posts;
+async function initAuth() {
+  const GSignIn = (await import('./auth.js')).default;
+  auth = new GSignIn();
+
+  const token = await auth.init();
+  if (token) {
+    const login = document.querySelector('#login');
+    const email = login.querySelector('.login-email');
+    email.addEventListener('click', async e => {
+      e.preventDefault();
+
+      if (!confirm('Logout?')) {
+        return false;
+      }
+
+      await auth.signOut();
+      login.hidden = true;
+    });
+
+    email.textContent = token.email;
+    login.hidden = false;
+  }
 }
 
 (async() => {
@@ -213,22 +226,18 @@ async function getLatestPosts() {
     // Populates client-side cache for future realtime updates.
     // Note: this basically results in 2x requests per page load, as we're
     // making the same requests the server just made. Now repeating them client-side.
-    _posts = await getLatestPosts();
-
-    let posts = _posts;
-    // if (!_includeTweets) {
-    //   posts = _posts.filter(p => !isTweet(p));
-    // }
+    _posts = await getLatestPosts(params.has('tweets'));
 
      // Posts markup is already in place if we're SSRing. Don't re-render DOM.
     if (!PRE_RENDERED) {
-      renderPosts(posts, container);
+      renderPosts(_posts, container);
     }
 
     realtimeUpdatePosts(util.currentYear);  // Subscribe to realtime firestore updates.
 
     if (params.has('edit')) {
       container.classList.add('edit');
+      await initAuth();
     } else {
       for (const key of params.keys()) {
         filterBy(key, params.get(key));

@@ -85,8 +85,8 @@ async function updateFeeds() {
         url: post.link,
         submitted:  (new Date(post.pubDate)).toJSON(),
         submitter: {
-          name: 'RSS BOT',
-          email: 'RSS',
+          name: 'RSS bot',
+          email: '',
           picture: 'img/rss_icon_24px.svg',
           bot: true,
         },

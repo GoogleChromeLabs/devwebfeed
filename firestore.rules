@@ -1,7 +1,11 @@
 service cloud.firestore {
   match /databases/{database}/documents {
+    function isGoogler() {
+      return request.auth.token.email.matches('.*@google[.]com');
+    }
     match /{document=**} {
-      allow read, write;
+      allow write: if isGoogler();
+      allow read;
     }
   }
 }

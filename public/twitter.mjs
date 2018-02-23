@@ -30,8 +30,8 @@ export default class Twitter {
             url: `https://twitter.com/${screenName}/status/${tweet.id_str}`,
             submitted:  (new Date(tweet.created_at)).toJSON(),
             submitter: {
-              name: 'Twitter BOT',
-              email: 'Twitter',
+              name: 'Twitter bot',
+              email: '',
               picture: 'img/twitter_icon.png',
               bot: true,
               // picture: tweet.user.profile_image_url_https || 'img/twitter_icon.png',

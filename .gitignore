@@ -1,7 +1,7 @@
 .DS_Store
 node_modules
 serviceAccountKey.json
-twitter_credentials.json
+*credentials.json
 *-error.log
 *.pem
 public/**/*.build.js

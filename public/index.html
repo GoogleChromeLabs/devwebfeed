@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#37474F">
   <link rel="icon" sizes="192x192" href="img/firehose.png">
   <link rel="shortcut icon" href="img/firehose.png">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans">
+  <!-- <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Google+Sans"> -->
   <link rel="stylesheet" href="styles.css">
   <!-- https://developers.google.com/web/updates/2017/12/modulepreload -->
   <!-- <link rel="modulepreload" href="render.mjs">
@@ -30,19 +30,25 @@
       <li>Keep this page open! Posts show up in real-time as they're added.</li>
       <li>Posts are sorted by added date. Not necessarily wnen they were published.</li>
       <li>Clicking a <a href="?author=Paul+Kinlan">name</a> or <a href="?domain=medium.com">domain</a> filters the list.</li>
+      <li>Click <a href="?tweets">here</a> to include Tweets.</li>
     </ul>
   </div>
 </aside>
 
 <main>
   <header>
+    <span id="login" class="layout center" hidden>
+      <a class="login-email" href="#" title="Click here to sign out"></a>
+    </span>
     <hgroup>
      <h1 class="title layout center-center"><a href="/">dev-web firehose</a></h1>
       <h4 class="subtitle layout center-center">
-        articles, tuts, tweets, code snippets
+        articles, tuts, <a href="?tweets">tweets</a>, code snippets
         <a href="#" onclick="return toggleHelp()" class="layout"><img src="img/help_24px.svg" height="18" width="18" class="helpicon"></a>
       </h4>
-      <label hidden><input type="checkbox" id="toggletweets">Include tweets</label>
+      <label hidden>
+        <input type="checkbox" id="toggletweets" checked>Include tweets
+      </label>
     </hgroup>
     <div id="filtering" class="layout center-center" hidden>
       <span>Filtering posts by "<span class="filtering-needle"></span>".</span>
@@ -57,6 +63,7 @@
 </main>
 <!-- TODO: use import() when Firebase supports modules -->
 <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase-app.js"></script>
+<!-- <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase-auth.js"></script> -->
 <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase-firestore.js"></script>
 </body>
 </html>

@@ -48,6 +48,9 @@ h1, h2, h3, h4 {
   font-weight: inherit;
   line-height: 1;
 }
+label {
+  user-select: none;
+}
 .fade {
   transition: opacity 300ms ease-in-out;
   will-change: opacity;
@@ -88,6 +91,14 @@ main {
 
 header {
   text-align: center;
+  position: relative;
+}
+
+#login {
+  position: absolute;
+  right: 0;
+  top: 0;
+  font-size: 14px;
 }
 
 .title a {
@@ -279,7 +290,6 @@ header h4 {
 }
 
 .post_title {
-  font-weight: 500;
   overflow: hidden;
   text-overflow: ellipsis;
 }

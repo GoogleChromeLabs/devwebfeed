@@ -48,7 +48,7 @@ function renderPostIcon(submitter) {
   if (!submitter || !submitter.picture) {
     return '';
   }
-  const submitterStr = submitter.email ? `Auto-submitted by ${submitter.email} bot` : '';
+  const submitterStr = submitter.email ? `Submitted by ${submitter.email}` : `Auto-submitted by ${submitter.name}`;
   return html`<img src="${submitter.picture}" class="profile_pic" title="${submitterStr}">`;
 }
 
