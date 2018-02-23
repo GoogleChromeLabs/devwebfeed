@@ -96,8 +96,8 @@ header {
 
 #login {
   position: absolute;
-  right: 0;
-  top: 0;
+  right: calc(-1 * var(--default-padding));
+  top: calc(-1 * var(--default-padding));
   font-size: 14px;
 }
 
