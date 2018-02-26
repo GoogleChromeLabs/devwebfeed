@@ -11,21 +11,28 @@
     "start": "node --experimental-modules server.mjs",
     "build": "docker build -t team-contributions .",
     "build-app": "babel --plugins transform-es2015-modules-commonjs -o ./public/app.build.js ./public/app.js",
+    "bundle": "rollup -c",
     "restart": "docker kill team-contributions; yarn build && docker run -dit -p 8080:8080 --rm --name team-contributions --cap-add=SYS_ADMIN team-contributions",
-    "deploy": "gcloud app deploy app.yaml --project devwebfeed",
+    "deploy": "npm run bundle && gcloud app deploy app.yaml --project devwebfeed",
     "deploy:cron": "gcloud app deploy cron.yaml --project devwebfeed"
   },
   "dependencies": {
-    "babel-cli": "^6.26.0",
-    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
     "body-parser": "^1.18.2",
     "express": "^4.16.2",
-    "express-minify": "^1.0.0",
     "firebase": "^4.10.0",
     "firebase-admin": "^5.9.0",
     "lit-html": "^0.9.0",
     "puppeteer": "^1.1.0",
     "rss-parser": "^3.1.1",
     "twitter": "^1.7.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-plugin-transform-es2015-modules-commonjs": "^6.26.0",
+    "rollup": "^0.56.2",
+    "rollup-plugin-filesize": "^1.5.0",
+    "rollup-plugin-includepaths": "^0.2.2",
+    "rollup-plugin-scss": "^0.4.0",
+    "rollup-plugin-uglify": "^3.0.0"
   }
 }

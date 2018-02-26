@@ -36,11 +36,6 @@ function debounce(func, wait, immediate) {
 	};
 }
 
-// const debounceRenderPosts = debounce((posts, container) => {
-//   console.log('here');
-//   renderPosts(posts, container);
-// }, 250);
-
 function sortPosts(items) {
   items.sort((a, b) => {
     a = String(a.submitted);

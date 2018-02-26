@@ -20,22 +20,8 @@ body {
   line-height: 1.8;
   margin: 0;
   color: var(--material-blue-grey-800);
-  /* background: url(img/firehose.png);
-  background-attachment: fixed;
-  background-size: 60px;*/
   background-color: var(--material-blue-grey-800);
-  /* background-blend-mode: color-burn; */
 }
-/* body::before {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  content: '';
-  background-color: var(--material-blue-grey-800);
-  opacity: 0.9;
-} */
 a {
   color: var(--material-blue-grey-600);
   text-decoration: none;

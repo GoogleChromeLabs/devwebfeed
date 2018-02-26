@@ -5,3 +5,4 @@ serviceAccountKey.json
 *-error.log
 *.pem
 public/**/*.build.js
+*.bundle.js

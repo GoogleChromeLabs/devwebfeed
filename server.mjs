@@ -87,19 +87,43 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
 
   const page = await browser.newPage();
 
-  // Small optimization. Since we only care about rendered DOM, ignore images,
-  // other media that don't produce markup
-  if (onlyCriticalRequests) {
-    await page.setRequestInterception(true);
-    const whitelist = ['document', 'script', 'xhr', 'fetch', 'websocket'];
-    page.on('request', req => {
-      // Keep CSS requests so we can read their responses later to inline.
-      if (inlineStyles) {
-        whitelist.push('stylesheet');
-      }
-      whitelist.includes(req.resourceType()) ? req.continue() : req.abort();
-    });
-  }
+  await page.setRequestInterception(true);
+
+  const resourcesWhiteList = ['document', 'script', 'xhr', 'fetch', 'websocket'];
+  const urlBlackList = [
+    '/gtag/js', // Don't load Google Analytics (e.g. inflates page metrics).
+  ];
+
+  page.on('request', req => {
+    const url = req.url();
+
+    // Googlebot doesn't understand ES modules. Serve bundled version instead.
+    if (url.endsWith('/app.js')) {
+      req.continue({url: url.replace('app.js', 'app.bundle.js')});
+      return;
+    }
+
+    // Prevent some resources from loading.
+    if (urlBlackList.find(regex => url.match(regex))) {
+      req.abort();
+      return;
+    }
+
+    // Don't abort CSS requests if we're inlining stylesheets into page. Need
+    // their responses.
+    if (inlineStyles) {
+      resourcesWhiteList.push('stylesheet');
+    }
+
+    // Small optimization. We only care about rendered DOM, ignore images, and
+    // other media that don't produce markup.
+    if (onlyCriticalRequests && !resourcesWhiteList.includes(req.resourceType())) {
+      req.abort();
+      return;
+    }
+
+    req.continue(); // pass through everything else.
+  });
 
   const stylesheetContents = {};
   const scriptsContents = {};
@@ -155,14 +179,20 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
   if (inlineScripts) {
     await page.$$eval('script[src]', (scripts, scriptsContents) => {
       scripts.forEach(script => {
+        if (script.hasAttribute('nomodule')) {
+          script.remove();
+          return;
+        }
+
         const js = scriptsContents[script.src];
         if (js) {
           const s = document.createElement('script');
-          // s.text = js;
-          // Note: not using script.text b/c here we don't need to eval the script.
-          // Thaat will be done client side when the browser renders the page.
+          // Note: not using s.text b/c here we don't need to eval the script.
+          // That will be done client side when the browser renders the page.
           s.textContent = js;
-          s.type = script.getAttribute('type') || null;
+
+          const type = script.getAttribute('type');
+          s.type = type === 'module' ? '' : type;
           script.replaceWith(s);
         }
       });
@@ -213,7 +243,7 @@ app.use(function addRequestHelpers(req, res, next) {
 // app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 app.use(express.static('public', {extensions: ['html', 'htm']}));
-app.use(express.static('node_modules/lit-html'));
+app.use(express.static('node_modules'));
 // app.use(express.static('node_modules/firebase'));
 // app.use(function cors(req, res, next) {
 //   res.set('Access-Control-Allow-Origin', '*');

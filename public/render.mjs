@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-import {html, render} from './lit-html.js';
-import {repeat} from './lib/repeat.js';
+import {html, render} from './lit-html/lit-html.js';
+import {repeat} from './lit-html/lib/repeat.js';
 import * as util from './util.mjs';
 
 const container = document.querySelector('#container');
