@@ -126,7 +126,7 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
     page.on('response', async resp => {
       const href = resp.url();
       const type = resp.request().resourceType();
-      const sameOriginResource = href.startsWith(url);
+      const sameOriginResource = new URL(href).origin === new URL(url).origin;
       // Only inline local resources.
       if (sameOriginResource) {
         if (type === 'stylesheet') {
@@ -199,6 +199,25 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
   return html;
 }
 
+async function doSSR(url, req) {
+  // This ignores other query params on the URL besides the tweets.
+  url = new URL(url);
+  if ('tweets' in req.query) {
+    url.searchParams.set('tweets', '');
+  }
+
+  const html = await ssr(url.href, {
+    useCache: 'nocache' in req.query ? false : true,
+    inlineStyles: 'noinline' in req.query ? false : true,
+    inlineScripts: 'noinline' in req.query ? false : true,
+    onlyCriticalRequests: 'noreduce' in req.query ? false : true,
+    reuseChrome: 'reusechrome' in req.query ? true : false,
+    headless: 'noheadless' in req.query ? false : true,
+  });
+
+  return html;
+}
+
 dbHelper.setApp(firebasedAdmin.initializeApp({
   // credential: firebasedAdmin.credential.applicationDefault()
   credential: firebasedAdmin.credential.cert(
@@ -229,6 +248,19 @@ app.use(function addRequestHelpers(req, res, next) {
 
 // app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
+
+// Handle index.html page dynamically.
+app.get('/', async (req, res, next) => {
+  // Server prerendered page to search crawlers.
+  if (req.get('User-Agent').match(/googlebot|bingbot/i)) {
+    const html = await doSSR(`${req.getOrigin()}/index.html`, req);
+    // res.append('Link', `<${url}/styles.css>; rel=preload; as=style`); // Push styles.
+    return res.status(200).send(html);
+  }
+  next();
+});
+
+
 app.use(express.static('public', {extensions: ['html', 'htm']}));
 app.use(express.static('node_modules'));
 // app.use(express.static('node_modules/firebase'));
@@ -275,21 +307,7 @@ app.use(express.static('node_modules'));
 // SSR render, 3G Slow:
 //   FP/FCP: 2.3s, 8.37s faster!
 app.get('/ssr', catchAsyncErrors(async (req, res) => {
-  // This ignores other query params on the URL besides the tweets.
-  const url = new URL(req.getOrigin());
-  if ('tweets' in req.query) {
-    url.searchParams.set('tweets', '');
-  }
-
-  const html = await ssr(url.href, {
-    useCache: 'nocache' in req.query ? false : true,
-    inlineStyles: 'noinline' in req.query ? false : true,
-    inlineScripts: 'noinline' in req.query ? false : true,
-    onlyCriticalRequests: 'noreduce' in req.query ? false : true,
-    reuseChrome: 'reusechrome' in req.query ? true : false,
-    headless: 'noheadless' in req.query ? false : true,
-  });
-  // res.append('Link', `<${url}/styles.css>; rel=preload; as=style`); // Push styles.
+  const html = await doSSR(`${req.getOrigin()}/index.html`, req);
   res.status(200).send(html);
 }));
 
