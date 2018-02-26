@@ -97,12 +97,6 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
   page.on('request', req => {
     const url = req.url();
 
-    // Googlebot doesn't understand ES modules. Serve bundled version instead.
-    if (url.endsWith('/app.js')) {
-      req.continue({url: url.replace('app.js', 'app.bundle.js')});
-      return;
-    }
-
     // Prevent some resources from loading.
     if (urlBlackList.find(regex => url.match(regex))) {
       req.abort();
@@ -179,20 +173,13 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
   if (inlineScripts) {
     await page.$$eval('script[src]', (scripts, scriptsContents) => {
       scripts.forEach(script => {
-        if (script.hasAttribute('nomodule')) {
-          script.remove();
-          return;
-        }
-
         const js = scriptsContents[script.src];
         if (js) {
           const s = document.createElement('script');
           // Note: not using s.text b/c here we don't need to eval the script.
           // That will be done client side when the browser renders the page.
           s.textContent = js;
-
-          const type = script.getAttribute('type');
-          s.type = type === 'module' ? '' : type;
+          s.type = script.getAttribute('type');
           script.replaceWith(s);
         }
       });
