@@ -83,6 +83,7 @@ async function updateFeeds() {
       return {
         title: post.title,
         url: post.link,
+        domain: new URL(post.link).host,
         submitted:  (new Date(post.pubDate)).toJSON(),
         submitter: {
           name: 'RSS bot',

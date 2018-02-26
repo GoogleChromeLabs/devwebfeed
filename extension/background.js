@@ -95,9 +95,12 @@ function getAuthor(tab) {
 }
 
 async function sendPageInfo(submitter, tab) {
+  const url = await getCanonicalLink(tab);
+
   const data = {
     title: await getPageTitle(tab),
-    url: await getCanonicalLink(tab),
+    url,
+    domain: new URL(url).host,
     submitted: (new Date()).toJSON(),
     submitter: {
       name: submitter.name,

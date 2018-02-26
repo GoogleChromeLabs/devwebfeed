@@ -28,6 +28,7 @@ export default class Twitter {
           .map(tweet => ({
             title: tweet.text,
             url: `https://twitter.com/${screenName}/status/${tweet.id_str}`,
+            domain: 'twitter.com',
             submitted:  (new Date(tweet.created_at)).toJSON(),
             submitter: {
               name: 'Twitter bot',
