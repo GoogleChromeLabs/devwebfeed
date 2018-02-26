@@ -66,7 +66,8 @@
 <!-- <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase-auth.js"></script> -->
 <script src="https://www.gstatic.com/firebasejs/4.9.1/firebase-firestore.js"></script>
 <script type="module" src="app.js"></script>
-<script nomodule src="app.bundle.js"></script> <!-- Support FF in client-side version -->
+<!-- Make client-side version work in Browsers that don't support ES modules. -->
+<script nomodule src="app.bundle.js"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-114661299-1"></script>
 <script>
   window.dataLayer = window.dataLayer || [];
