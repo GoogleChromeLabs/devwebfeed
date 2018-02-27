@@ -25,12 +25,15 @@ export const firebaseConfig = {
   messagingSenderId: "1067674167387"
 };
 
+// Note: Prefer RSS feeds work best because atom feeds can have <updated> which the
+// rss-parser npm package treats as a pub date  :\
 export const FEEDS = [
   'https://developers.google.com/web/updates/2018/rss.xml',
   'https://developers.google.com/web/updates/2017/rss.xml',
   'https://developers.google.com/web/fundamentals/rss.xml',
   'https://developers.google.com/web/tools/rss.xml', // Note: only last 20 items.
-  'https://developers.google.com/web/shows/atom.xml', // Note: only last 20 items.
+  'https://developers.google.com/web/tools/rss.xml', // Note: only last 20 items.
+  'https://developers.google.com/web/shows/rss.xml', // Note: only last 20 items.
   'http://feeds.feedburner.com/philipwalton',
   'https://ericbidelman.tumblr.com/rss',
   'https://jakearchibald.com/posts.rss',
@@ -43,7 +46,7 @@ export const FEEDS = [
   'https://samdutton.wordpress.com/feed/',
   'https://mathiasbynens.be/notes.rss',
   'https://meowni.ca/atom.xml',
-  'http://blog.chromium.org/atom.xml',
+  'https://blog.chromium.org/atom.xml', // use atom feed so authors are formatted correctly.
 ];
 
 export const BLOG_TO_AUTHOR = [

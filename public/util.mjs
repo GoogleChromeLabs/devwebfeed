@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-'use strict';
-
 function debounce(func, wait, immediate) {
 	let timeout;
 	return function() {

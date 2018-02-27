@@ -53,17 +53,17 @@ async function updateFeeds() {
   });
 
   const results = (await Promise.all(promises)).map(feed => {
-    let author = '';
+    let feedAuthor = '';
 
     // If feed has author, use it.
     if (feed.author && feed.author.name) {
-      author = feed.author.name;
+      feedAuthor = feed.author.name;
     }
 
     // Fallback. Lookup author.
     const foundAuthor = BLOG_TO_AUTHOR.find((item, i) => feed.link.match(item.urlMatcher));
     if (foundAuthor) {
-      author = foundAuthor.author;
+      feedAuthor = foundAuthor.author;
     }
 
     return feed.items.map(post => {
@@ -74,11 +74,8 @@ async function updateFeeds() {
       u.searchParams.delete('utm_source');
       post.link = u.href;
 
-      // If post has an author, it overrides.
-      const creator = post['dc:creator'] || post.creator;
-      if (creator) {
-        author = creator;
-      }
+      // If post has an author, it overrides the feed author.
+      const author = post['dc:creator'] || post.creator;
 
       return {
         title: post.title,
@@ -91,7 +88,7 @@ async function updateFeeds() {
           picture: 'img/rss_icon_24px.svg',
           bot: true,
         },
-        author,
+        author: author || feedAuthor,
       };
     });
   }).reduce((accum, item) => accum.concat(...item), []);
