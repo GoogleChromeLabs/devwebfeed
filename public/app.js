@@ -178,9 +178,9 @@ function toggleHelp() {
   return false;
 }
 
-async function getLatestPosts(includeTweets) {
+async function getPosts(forYear, includeTweets = false) {
   // const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
-  const thisYearsPosts = await fetchPosts(`/posts/${util.currentYear}`);
+  const thisYearsPosts = await fetchPosts(`/posts/${forYear}`);
 
   // const posts = util.uniquePosts([...thisYearsPosts, ...lastYearsPosts, ...tweets]);
   const posts = thisYearsPosts;
@@ -226,14 +226,14 @@ async function initAuth() {
     // Populates client-side cache for future realtime updates.
     // Note: this basically results in 2x requests per page load, as we're
     // making the same requests the server just made. Now repeating them client-side.
-    _posts = await getLatestPosts(params.has('tweets'));
+    _posts = await getPosts(params.get('year') || util.currentYear, params.has('tweets'));
 
      // Posts markup is already in place if we're SSRing. Don't re-render DOM.
     if (!PRE_RENDERED) {
       renderPosts(_posts, container);
     }
 
-    realtimeUpdatePosts(util.currentYear);  // Subscribe to realtime firestore updates.
+    realtimeUpdatePosts(util.currentYear);  // Subscribe to realtime firestore updates for current year.
 
     if (params.has('edit')) {
       container.classList.add('edit');

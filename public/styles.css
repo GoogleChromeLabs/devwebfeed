@@ -29,6 +29,10 @@ a {
 a:hover {
   text-decoration: underline;
 }
+a.disabled {
+  pointer-events: none;
+  opacity: 0.5;
+}
 h1, h2, h3, h4 {
   margin: 0;
   font-weight: inherit;
@@ -334,6 +338,13 @@ header h4 {
 
 .source_icon[src=""] {
   display: none;
+}
+
+.pagination {
+  padding: var(--default-padding-half);
+}
+.pagination a {
+  margin: 0 var(--default-padding-half);
 }
 
 @media screen and (min-width: 768px) {

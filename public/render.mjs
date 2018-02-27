@@ -52,6 +52,20 @@ function renderPostIcon(submitter) {
   return html`<img src="${submitter.picture}" class="profile_pic" title="${submitterStr}">`;
 }
 
+function renderPaginationLinks() {
+  const params = new URL(location.href).searchParams;
+  const yearView = parseInt(params.get('year') || util.currentYear);
+
+  const newer = yearView + 1;
+  const older = yearView - 1;
+  const disabled = newer > util.currentYear ? 'disabled' : '';
+  return html`
+    <footer class="pagination layout center-center">
+      <a href="?year=${newer}" class="${disabled}">&larr; Newer</a> | <a href="?year=${older}">Older &rarr;</a>
+    </footer>
+    `;
+}
+
 function iconSrc(domain) {
   let src = '';
   if (domain.match('github.com')) {
@@ -72,6 +86,7 @@ function renderPosts(items, container) {
   // Group posts by the date they were submitted.
   items = groupBySubmittedDate(items);
   const template = (items) => html`
+    ${renderPaginationLinks()}
     <ul id="posts">
       ${repeat(items, (item) => item[1].url, (item, i) => {
         const date = item[0];
@@ -114,6 +129,7 @@ function renderPosts(items, container) {
         `;
       })}
     </ul>
+    ${renderPaginationLinks()}
   `;
 
   render(template(items), container);

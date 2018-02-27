@@ -200,10 +200,13 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
 }
 
 async function doSSR(url, req) {
-  // This ignores other query params on the URL besides the tweets.
+  // Ignore random query params on the URL. Use only the ones we care about.
   url = new URL(url);
   if ('tweets' in req.query) {
     url.searchParams.set('tweets', '');
+  }
+  if ('year' in req.query) {
+    url.searchParams.set('year', req.query.year);
   }
 
   const html = await ssr(url.href, {
