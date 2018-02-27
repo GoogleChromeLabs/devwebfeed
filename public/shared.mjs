@@ -28,6 +28,9 @@ export const firebaseConfig = {
 export const FEEDS = [
   'https://developers.google.com/web/updates/2018/rss.xml',
   'https://developers.google.com/web/updates/2017/rss.xml',
+  'https://developers.google.com/web/fundamentals/rss.xml',
+  'https://developers.google.com/web/tools/rss.xml', // Note: only last 20 items.
+  'https://developers.google.com/web/shows/atom.xml', // Note: only last 20 items.
   'http://feeds.feedburner.com/philipwalton',
   'https://ericbidelman.tumblr.com/rss',
   'https://jakearchibald.com/posts.rss',
