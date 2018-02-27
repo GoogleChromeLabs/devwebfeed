@@ -251,7 +251,7 @@ app.use(bodyParser.json());
 
 // Handle index.html page dynamically.
 app.get('/', async (req, res, next) => {
-  // Server prerendered page to search crawlers.
+  // Serve prerendered page to search crawlers.
   if (req.get('User-Agent').match(/googlebot|bingbot/i)) {
     const html = await doSSR(`${req.getOrigin()}/index.html`, req);
     // res.append('Link', `<${url}/styles.css>; rel=preload; as=style`); // Push styles.
