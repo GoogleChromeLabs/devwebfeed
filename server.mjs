@@ -363,6 +363,7 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   // TODO: monitor updates to other years. e.g. If the server is running when
   // a new year occurs, it will need to be restarted to pick up updates to that
   // new year.
+  // TODO: figure out way to realtime update tweets and RSS posts.
   // Note: this setups a single realtime monitor (e.g. not one per request).
   dbHelper.monitorRealtimeUpdateToPosts(util.currentYear, async changes => {
     const origin = req.getOrigin();

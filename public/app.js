@@ -119,7 +119,7 @@ function realtimeUpdatePosts(year) {
       document.title = `(${++numChanges}) ${originalTitle}`;
     }
 
-    const month = changes[0].oldIndex; // Index in doc's maps to the the month.
+    const month = changes[0].oldIndex; // Index in collection maps to the month.
 
     _posts = _posts.filter(post => {
       const s = new Date(post.submitted);
