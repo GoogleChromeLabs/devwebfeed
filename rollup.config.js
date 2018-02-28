@@ -7,6 +7,7 @@ export default [{
   input: 'public/app.js',
   output: {
     file: 'public/app.bundle.js',
+    name: 'app',
     format: 'iife',
   },
   experimentalDynamicImport: true,

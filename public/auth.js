@@ -63,7 +63,7 @@ export default class GSignIn {
         script.async = true;
         script.onload = resolve;
         script.onerror = reject;
-        script.src = 'https://www.gstatic.com/firebasejs/4.9.1/firebase-auth.js';
+        script.src = '/firebase/firebase-auth.js';
         document.body.appendChild(script);
       });
     }
