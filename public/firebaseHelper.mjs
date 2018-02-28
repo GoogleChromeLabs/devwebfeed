@@ -25,6 +25,7 @@ let monitoringChanges = false;
 
 function setApp(firebaseApp) {
   db = firebaseApp.firestore();
+  return firebaseApp;
 }
 
 /**
