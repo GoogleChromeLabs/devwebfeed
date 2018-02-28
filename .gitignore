@@ -4,5 +4,5 @@ serviceAccountKey.json
 *credentials.json
 *-error.log
 *.pem
-public/**/*.build.js
-*.bundle.js
+public/**/*.bundle.js
+public/styles.min.css

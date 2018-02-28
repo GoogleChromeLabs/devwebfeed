@@ -1,7 +1,16 @@
+import fs from 'fs';
 import includePaths from 'rollup-plugin-includepaths';
 import filesize from 'rollup-plugin-filesize';
 import uglify from 'rollup-plugin-uglify';
-// import scss from 'rollup-plugin-scss';
+import postcss from 'postcss';
+import cssnano from 'cssnano';
+import postCSSCustomVariables from 'postcss-css-variables';
+
+// Minify css. Google search runs Chrome 41, which doesn't support CSS custom properties :(
+const css = fs.readFileSync('./public/styles.css', 'utf8');
+const output = postcss([postCSSCustomVariables()]).process(css)
+  .then(result => cssnano.process(result.css))
+  .then(result => fs.writeFileSync('./public/styles.min.css', result.css));
 
 export default [{
   input: 'public/app.js',
@@ -19,16 +28,4 @@ export default [{
     uglify(),
     filesize()
   ],
-},/* {
-  input: 'public/styles.css',
-  output: {
-    // file: 'public/styles.min.css',
-    format: 'es',
-  },
-  plugins: [
-    scss({
-      output: 'public/styles.min.css',
-      outputStyle: 'compressed'
-    })
-  ]
-}*/];
+}];

@@ -12,9 +12,10 @@
   --material-blue-grey-dark: #263238;
   --material-red-500: #F44336;
   --material-red-600: #E53935;
+
+  --icon-size: 50px;
 }
 body {
-  --icon-padding: calc(var(--default-padding) * 2);
   font-family: 'Google Sans', 'Product Sans', sans-serif;
   -webkit-font-smoothing: antialiased;
   line-height: 1.8;
@@ -355,18 +356,17 @@ header h4 {
     padding: calc(var(--default-padding) * 2);
   }
   main::before {
-    --size: 50px;
     content: '';
     background: url(img/firehose.png) no-repeat 50% 50%;
-    background-size: var(--size);
+    background-size: var(--icon-size);
     background-blend-mode: luminosity;
     background-color: var(--material-blue-grey-800);
     position: absolute;
     left: 0;
     right: 0;
-    top: calc(-1 * var(--size) / 2);
-    height: calc(var(--size) - 4px);
-    width: calc(var(--size) - 4px);
+    top: calc(-1 * var(--icon-size) / 2);
+    height: calc(var(--icon-size) - 4px);
+    width: calc(var(--icon-size) - 4px);
     margin: 0 auto;
   }
   .title {

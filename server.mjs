@@ -107,6 +107,14 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
     // their responses.
     if (inlineStyles) {
       resourcesWhiteList.push('stylesheet');
+
+      if (url.endsWith('styles.css'))  {
+        return req.respond({
+          status: 200,
+          contentType: 'text/css',
+          body: fs.readFileSync('./public/styles.min.css', 'utf-8'),
+        });
+      }
     }
 
     // Small optimization. We only care about rendered DOM, ignore images, and
