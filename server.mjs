@@ -22,7 +22,7 @@ import url from 'url';
 const URL = url.URL;
 // import stream from 'stream';
 import express from 'express';
-import firebasedAdmin from 'firebase-admin';
+import firebaseAdmin from 'firebase-admin';
 import puppeteer from 'puppeteer';
 
 import Twitter from './public/twitter.mjs';
@@ -221,9 +221,9 @@ async function doSSR(url, req) {
   return html;
 }
 
-dbHelper.setApp(firebasedAdmin.initializeApp({
-  // credential: firebasedAdmin.credential.applicationDefault()
-  credential: firebasedAdmin.credential.cert(
+dbHelper.setApp(firebaseAdmin.initializeApp({
+  // credential: firebaseAdmin.credential.applicationDefault()
+  credential: firebaseAdmin.credential.cert(
       JSON.parse(fs.readFileSync('./serviceAccountKey.json')))
 }));
 
