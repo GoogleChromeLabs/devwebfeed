@@ -76,6 +76,8 @@ function iconSrc(domain) {
     src = 'img/twitter_icon.png';
   } else if (domain.match('chromium.org')) {
     src = 'img/chromium_logo.svg';
+  } else if (domain.match('youtu.be') || domain.match('youtube.com')) {
+    src = 'img/youtube_64px.png';
   }
   return src;
 }

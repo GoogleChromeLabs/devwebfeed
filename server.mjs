@@ -396,16 +396,9 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
+  // feeds.updateFeeds();
+  // twitter.updateTweets();
 
-  // async function updatePosts(updateFunction, msTimeout) {
-  //   await updateFunction.bind(twitter).call();
-  //   setTimeout(updatePosts, msTimeout);
-  // }
-
-  // // Warm the caches.
-  // // TODO: move to cron.
-  // updatePosts(feeds.updateFeeds, 1000 * 60 * 60 * 24); // every 24hrs
-  // updatePosts(twitter.updateTweets, 1000 * 60 * 60 * 1); // every 1hrs
 });
 
 
