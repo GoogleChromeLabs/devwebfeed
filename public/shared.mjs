@@ -34,7 +34,7 @@ export const FEEDS = [
   'https://developers.google.com/web/tools/rss.xml', // Note: only last 20 items.
   'https://developers.google.com/web/tools/rss.xml', // Note: only last 20 items.
   'https://developers.google.com/web/shows/rss.xml', // Note: only last 20 items.
-  'http://feeds.feedburner.com/philipwalton',
+  'https://philipwalton.com/atom.xml',
   'https://ericbidelman.tumblr.com/rss',
   'https://jakearchibald.com/posts.rss',
   'https://paul.kinlan.me/index.xml',
