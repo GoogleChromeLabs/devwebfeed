@@ -362,7 +362,7 @@ app.get('/admin/update/rendercache', async (req, res) => {
     return res.status(403).send('Sorry, handler can only be run from a GAE cron.');
   }
 
-  const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage'], headless: false});
+  const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
 
   const url = new URL(req.getOrigin());
 
