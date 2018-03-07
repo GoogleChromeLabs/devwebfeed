@@ -3197,13 +3197,13 @@ rollup-plugin-uglify@^3.0.0:
   dependencies:
     uglify-es "^3.3.7"
 
-rollup@^0.56.3:
-  version "0.56.3"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.56.3.tgz#7900695531afa1badd3235f285cc4aa0d49ce254"
+rollup@^0.56.5:
+  version "0.56.5"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.56.5.tgz#40fe3cf0cd1659d469baad11f4d5b6336c14ce84"
 
-rss-parser@^3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/rss-parser/-/rss-parser-3.1.1.tgz#ded3c30544ce2c2694efc2240c05d76337f295a4"
+rss-parser@^3.1.2:
+  version "3.1.2"
+  resolved "https://registry.yarnpkg.com/rss-parser/-/rss-parser-3.1.2.tgz#f029873e667f7007788e3cf27ad11967c848c121"
   dependencies:
     entities "^1.1.1"
     xml2js "^0.4.17"
