@@ -59,23 +59,29 @@ const catchAsyncErrors = fn => (req, res, next) => {
  *     onlyCriticalRequests: Reduces the number of requests the
  *         browser makes by aborting requests that are non-critical to rendering
  *         the DOM of the page (stylesheets, images, media). True by default.
- *     reuseChrome: Set to false to relaunch a new isntance of Chrome on every call. Default is false.
+ *     reuseChrome: Set to false to relaunch a new instance of Chrome on every call. Default is false.
  *     headless: Set to false to launch headlful chrome. Default is true. Note: this param will
  *         have no effect if Chrome was launched at least once with reuseChrome: true.
+ *     existingBrowser: existing browser instance to use. `reuseChrome` and `headless`
+ *         are ignored if this is present.
  * @return {string} Serialized page output as an html string.
  */
 async function ssr(url, {useCache = true, onlyCriticalRequests = true,
                          inlineStyles = true, inlineScripts = true,
-                         reuseChrome = false, headless = true} = {}) {
+                         reuseChrome = false, headless = true,
+                         existingBrowser = null} = {}) {
   if (useCache && RENDER_CACHE.has(url)) {
     return RENDER_CACHE.get(url);
   }
 
   const tic = Date.now();
   // Reuse existing browser instance or launch a new one.
-  let browser;
-  if (browserWSEndpoint && reuseChrome) {
-    console.info('Reusing existing chrome instance');
+  let browser = existingBrowser;
+  if (browser) {
+    console.info('Connecting to provided chrome instance.');
+    browser = await puppeteer.connect({browserWSEndpoint: await browser.wsEndpoint()});
+  } else if (browserWSEndpoint && reuseChrome) {
+    console.info('Reusing previously launched chrome instance.');
     browser = await puppeteer.connect({browserWSEndpoint});
   } else {
     browser = await puppeteer.launch({
@@ -86,6 +92,14 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
   }
 
   const page = await browser.newPage();
+
+  // const logConsole = msg => {
+  //   if (msg.type() === 'error') {
+  //     console.log(msg.text());
+  //   }
+  // };
+  // page.on('pageerror', err => console.error('JS error on page!', err)); // log client-side errors in server.
+  // page.on('console', logConsole); // log client-side errors in server.
 
   await page.setRequestInterception(true);
 
@@ -154,14 +168,13 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
   const urlToFetch = new URL(url);
   urlToFetch.searchParams.set('headless', '');
 
-  // await page.evaluateOnNewDocument(() => localStorage.setItem('includeTweets', false));
-
   try {
     await page.goto(urlToFetch.href, {waitUntil: 'domcontentloaded'});
     await page.waitForSelector('#posts'); // wait for posts to be in filled in page.
   } catch (err) {
-    await browser.close();
     browserWSEndpoint = null;
+    console.err(err);
+    await browser.close();
     throw new Error('page.goto/waitForSelector timed out.');
   }
 
@@ -194,15 +207,17 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
     }, scriptsContents);
   }
 
-  const html = await page.content(); // Use browser to prerender page, get serialized DOM output!
-  if (browserWSEndpoint && reuseChrome) {
-    await page.close();
-  } else {
-    await browser.close();
-  }
-  console.info(`Headless rendered page in: ${Date.now() - tic}ms`);
+  // page.removeListener('console', logConsole);
 
-  RENDER_CACHE.set(url, html); // cache rendered page.
+  const html = await page.content(); // Use browser to prerender page, get serialized DOM output!
+  if (browserWSEndpoint && reuseChrome || existingBrowser) {
+    await page.close(); // Close pages we opened.
+  } else if (!existingBrowser) {
+    await browser.close(); // Close browser if we created it.
+  }
+  console.info(`Headless rendered ${url} in: ${Date.now() - tic}ms`);
+
+  RENDER_CACHE.set(url, html); // Cache rendered page.
 
   return html;
 }
@@ -342,6 +357,26 @@ app.get('/admin/update/tweets/:username', async (req, res) => {
   res.status(200).json(await twitter.updateTweets(username));
 });
 
+app.get('/admin/update/rendercache', async (req, res) => {
+  if (!req.get('X-Appengine-Cron')) {
+    return res.status(403).send('Sorry, handler can only be run from a GAE cron.');
+  }
+
+  const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage'], headless: false});
+
+  const url = new URL(req.getOrigin());
+
+  // Re-render main page and a few years back.
+  RENDER_CACHE.clear();
+  await ssr(url.href, {useCache: false, existingBrowser: browser});
+  await ssr(`${url}?year=${util.currentYear - 1}`, {useCache: false, existingBrowser: browser});
+  await ssr(`${url}?year=${util.currentYear - 2}`, {useCache: false, existingBrowser: browser});
+  await ssr(`${url}?year=${util.currentYear - 3}`, {useCache: false, existingBrowser: browser});
+  await browser.close();
+
+  res.status(200).send('Render cache updated!');
+});
+
 app.post('/posts', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Headers', 'Content-Type');
@@ -378,6 +413,9 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   // Note: this setups a single realtime monitor (e.g. not one per request).
   dbHelper.monitorRealtimeUpdateToPosts(util.currentYear, async changes => {
     const origin = req.getOrigin();
+
+    // TODO: be more selective. This nukes all cache entries for URLs that
+    // match the page's origin.
     for (const url of RENDER_CACHE.keys()) {
       if (url.startsWith(origin)) {
         RENDER_CACHE.delete(url);
