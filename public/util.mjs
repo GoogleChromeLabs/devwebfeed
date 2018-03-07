@@ -52,6 +52,7 @@ function sortPosts(items) {
  * Unique items based on url property.
  * @param {!Array} items
  * @param {string} propName Property name to filter on.
+ * @return {!Array} unique array of items
  */
 function uniqueByProperty(items, propName) {
   const posts = Array.from(items.reduce((map, item) => {
