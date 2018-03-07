@@ -4,7 +4,7 @@
 
 Create a `serviceAccountKey.json` file in the root folder and add your service
 account credentials from the Google Developer Console.
-
+clear
 Create a OAuth web app credentials file in the Google Developer Console and
 add it to the root folder. It should be named `google_oauth_credentials.json.`.
 
@@ -55,3 +55,7 @@ yarn deploy
 Install the extension directory as an unpacked extension. The first time you
 post an URL, an OAuth popup will open asking you to login. This is so we know
 who added the post.
+
+####
+
+Apache 2.0 © 2018 Google Inc.
