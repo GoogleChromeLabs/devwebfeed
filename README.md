@@ -52,9 +52,11 @@ yarn deploy
 
 ## Extension
 
-Install the extension directory as an unpacked extension. The first time you
-post an URL, an OAuth popup will open asking you to login. This is so we know
-who added the post.
+A companion [chrome extension](https://chrome.google.com/webstore/detail/dev-web-firehose/eimdpjkdpfcbochbgfaadbpgpoaplhja) is available to share posts on the feed you find interesting and which
+are not automatically pulled in. Things like gists, release notes, samples,
+external articles).
+
+**Note:** The first time you share an URL, an OAuth popup will open asking you to login. This is so we know who added the post.
 
 ####
 
