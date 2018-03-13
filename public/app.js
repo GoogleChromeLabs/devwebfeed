@@ -228,7 +228,7 @@ async function initAuth() {
     // making the same requests the server just made. Now repeating them client-side.
     _posts = await getPosts(params.get('year') || util.currentYear, params.has('tweets'));
 
-     // Posts markup is already in place if we're SSRing. Don't re-render DOM.
+    // Posts markup is already in place if we're SSRing. Don't re-render DOM.
     if (!PRE_RENDERED) {
       renderPosts(_posts, container);
     }
