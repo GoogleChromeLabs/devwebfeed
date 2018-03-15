@@ -4,6 +4,7 @@
   <title>dev-web firehose</title>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#37474F">
   <meta name="description" content="Developer resource from Google Web DevRel and from around the web.">
   <meta name="keywords" content="HTML,CSS,JavaScript,web,PWA,tutorials,code,tweets">
@@ -74,6 +75,12 @@
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
   gtag('config', 'UA-114661299-1');
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW registered!'))
+      .catch(err => console.error('Boo!', err));
+  }
 </script>
 </body>
 </html>
