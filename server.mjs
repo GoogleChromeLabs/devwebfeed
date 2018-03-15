@@ -29,6 +29,7 @@ import Twitter from './public/twitter.mjs';
 import * as feeds from './public/feeds.mjs';
 import * as util from './public/util.mjs';
 import * as dbHelper from './public/firebaseHelper.mjs';
+import RSSFeed from './public/rss.mjs';
 
 const PORT = process.env.PORT || 8080;
 const RENDER_CACHE = new Map(); // Cache of pre-rendered HTML pages.
@@ -398,13 +399,22 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   const month = req.params.month ? req.params.month.padStart(2, '0') : null;
   const day = req.params.day ? req.params.day.padStart(2, '0') : null;
   const maxResults = req.query.maxresults ? Number(req.query.maxresults) : null;
+  const format = req.query.format || null;
 
   if (!year) {
     return res.status(400).send({error: 'No year specified.'});
   }
 
   const rssPosts = await feeds.collectRSSFeeds();
-  const posts = await dbHelper.getPosts(year, month, day, rssPosts, maxResults);
+  const posts = util.uniquePosts(
+      await dbHelper.getPosts(year, month, day, rssPosts, maxResults));
+
+  if (format === 'rss') {
+    const feedUrl = req.getCurrentUrl();
+    const xml = (new RSSFeed(feedUrl)).create(posts);
+    res.set('Content-Type', 'application/rss+xml');
+    return res.status(200).send(xml);
+  }
 
   // TODO: monitor updates to other years. e.g. If the server is running when
   // a new year occurs, it will need to be restarted to pick up updates to that
