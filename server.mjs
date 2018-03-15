@@ -394,16 +394,12 @@ app.post('/posts', async (req, res) => {
 // });
 
 app.get('/posts/:year?/:month?/:day?', async (req, res) => {
-  const year = req.params.year;
+  const year = req.params.year || util.currentYear;
   // Pad values if missing leading '0'.
   const month = req.params.month ? req.params.month.padStart(2, '0') : null;
   const day = req.params.day ? req.params.day.padStart(2, '0') : null;
   const maxResults = req.query.maxresults ? Number(req.query.maxresults) : null;
   const format = req.query.format || null;
-
-  if (!year) {
-    return res.status(400).send({error: 'No year specified.'});
-  }
 
   const rssPosts = await feeds.collectRSSFeeds();
   const posts = util.uniquePosts(

@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import url from 'url';
+const URL = url.URL;
 import RSS from 'rss';
 
 class RSSFeed {
@@ -22,14 +24,15 @@ class RSSFeed {
     this.feedUrl = feedUrl;
   }
 
-  create(posts, feedUrl) {
+  create(posts) {
+    const siteOrigin = new URL(this.feedUrl).origin;
     const feed = new RSS({
       /* eslint-disable camelcase */
       title: 'DevWeb Firehose',
       description: 'Developer resource from Google Web DevRel and from around the web',
       feed_url: this.feedUrl,
-      site_url: 'https://devwebfeed.appspot.com/',
-      image_url: 'https://devwebfeed.appspot.com/img/firehose.png',
+      site_url: siteOrigin,
+      image_url: `${siteOrigin}/img/firehose.png`,
       pubDate: new Date(),
       ttl: 180,// mins for feed to be cached.
       // custom_namespaces: {

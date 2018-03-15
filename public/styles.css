@@ -111,7 +111,7 @@ header h4 {
   line-height: 1.2;
 }
 
-.helpicon {
+.helpicon, .rssicon {
   margin-left: calc(var(--default-padding) / 2);
 }
 
