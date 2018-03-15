@@ -1,12 +1,12 @@
 cron:
 - description: "Daily rss and feeds update"
   url: /admin/update/feeds
-  schedule: every 120 minutes
+  schedule: every 60 minutes
   retry_parameters:
     job_retry_limit: 2
 - description: "Recache pages"
   url: /admin/update/rendercache
-  schedule: every 121 minutes
+  schedule: every 61 minutes
   retry_parameters:
     job_retry_limit: 2
 - description: "Tweets update"
