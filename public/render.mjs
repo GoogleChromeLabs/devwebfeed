@@ -118,6 +118,7 @@ function renderPosts(items, container) {
               <div class="layout">
                 <a href="" class="remove_button" onclick="return handleDelete(this, '${date}', '${post.url}')"
                    title="Remove this post"></a>
+                <a href="" class="share_button" onclick="return sharePost(this, '${post.url}', '${post.title}')" title="Share this post"></a>
                 ${renderPostIcon(post.submitter)}
               </div>
             </li>`;

@@ -23,6 +23,9 @@ body {
   color: var(--material-blue-grey-800);
   background-color: var(--material-blue-grey-800);
 }
+body.supports-share .share_button {
+  display: initial;
+}
 a {
   color: var(--material-blue-grey-600);
   text-decoration: none;
@@ -324,6 +327,15 @@ header h4 {
   background: url(img/remove_icon_24px.svg) no-repeat 50% 50%;
   background-size: 28px;
   display: none;
+}
+
+.share_button {
+  display: none;
+  opacity: 0.6;
+  width: 24px;
+  height: 24px;
+  background: url(img/share_24px.svg) no-repeat 50% 50%;
+  background-size: 22px;
 }
 
 .post[data-submitted-by-bot="true"] .remove_button {

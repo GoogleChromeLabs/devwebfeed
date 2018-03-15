@@ -178,6 +178,22 @@ function toggleHelp() {
   return false;
 }
 
+
+/**
+ * Shares a post using the Web Share API.
+ * @param {!HTMLElement} el Target element that trigger the event.
+ * @param {!HTMLElement} url URL of the post to share.
+ * @param {!HTMLElement} title Title of the post.
+ * @return {boolean}
+ */
+function sharePost(el, url, title) {
+  if (navigator.share) {
+    navigator.share({title, url})
+      .catch(err => console.err('Error with web sharing', err));
+  }
+  return false;
+}
+
 async function getPosts(forYear, includeTweets = false) {
   // const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
   const thisYearsPosts = await fetchPosts(`/posts/${forYear}`);
@@ -217,6 +233,9 @@ async function initAuth() {
   }
 }
 
+// Add sharing icon if supported by the browser.
+document.body.classList.toggle('supports-share', !!navigator.share);
+
 (async() => {
   const PRE_RENDERED = container.querySelector('#posts'); // Already exists in DOM if we've SSR.
 
@@ -252,3 +271,4 @@ window.handleDelete = handleDelete;
 window.filterBy = filterBy;
 window.clearFilters = clearFilters;
 window.toggleHelp = toggleHelp;
+window.sharePost = sharePost;
