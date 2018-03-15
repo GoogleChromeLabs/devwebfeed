@@ -63,4 +63,5 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'developers.google.com', author: 'd.g.c'},
   {urlMatcher: '@samthor', author: 'Sam Thorogood'},
   {urlMatcher: 'meowni.ca', author: 'Monica Dinculescu'},
+  {urlMatcher: 'dassur.ma', author: 'Surma'},
 ];
