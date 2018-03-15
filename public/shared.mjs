@@ -47,6 +47,7 @@ export const FEEDS = [
   'https://mathiasbynens.be/notes.rss',
   'https://meowni.ca/atom.xml',
   'https://blog.chromium.org/atom.xml', // use atom feed so authors are formatted correctly.
+  'https://dassur.ma/index.xml',
 ];
 
 export const BLOG_TO_AUTHOR = [
