@@ -53,6 +53,8 @@ async function updateFeeds() {
   });
 
   const results = (await Promise.all(promises)).map(feed => {
+    const feedOrigin = new URL(feed.link).origin;
+    const feedTitle = feed.title;
     let feedAuthor = '';
 
     // If feed has author, use it.
@@ -68,7 +70,8 @@ async function updateFeeds() {
 
     return feed.items.map(post => {
       // Kill nasty GA tracking params.
-      const u = new URL(post.link);
+      const link = post.link.startsWith('http') ? post.link : feedOrigin + post.link;
+      const u = new URL(link); // Github release feed uses relative links :(
       u.searchParams.delete('utm_campaign');
       u.searchParams.delete('utm_medium');
       u.searchParams.delete('utm_source');
@@ -77,8 +80,15 @@ async function updateFeeds() {
       // If post has an author, it overrides the feed author.
       const author = post['dc:creator'] || post.creator;
 
+      // Github release note titles only include version. Prefix with feed title
+      // so link includes the project name.
+      let title = post.title;
+      if (post.link.includes('github.com') && feedTitle.match(/release notes/i)) {
+        title = `${feedTitle} ${post.title}`;
+      }
+
       return {
-        title: post.title,
+        title,
         url: post.link,
         domain: new URL(post.link).host,
         submitted:  (new Date(post.pubDate)).toJSON(),

@@ -48,9 +48,9 @@ export const FEEDS = [
   'https://meowni.ca/atom.xml',
   'https://blog.chromium.org/atom.xml', // use atom feed so authors are formatted correctly.
   'https://dassur.ma/index.xml',
-  'https://github.com/googlechromelabs/comlink/releases.atom',
-  'https://github.com/googlechromelabs/clooney/releases.atom',
-  'https://github.com/googlechromelabs/sw-precache/releases.atom',
+  // 'https://github.com/googlechromelabs/comlink/releases.atom',
+  // 'https://github.com/googlechromelabs/clooney/releases.atom',
+  // 'https://github.com/googlechromelabs/sw-precache/releases.atom',
   'https://github.com/googlechrome/lighthouse/releases.atom',
   'https://github.com/googlechrome/workbox/releases.atom',
   'https://github.com/googlechrome/puppeteer/releases.atom'
@@ -70,6 +70,6 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: '@samthor', author: 'Sam Thorogood'},
   {urlMatcher: 'meowni.ca', author: 'Monica Dinculescu'},
   {urlMatcher: 'dassur.ma', author: 'Surma'},
-  {urlMatcher: 'github.com/GoogleChromeLabs', author: 'Google Chrome Labs', twitter: 'ChromiumDev', gitub: 'googlechromelabs' },
-  {urlMatcher: 'github.com/GoogleChrome/', author: 'Google Chrome', twitter: 'ChromiumDev', gitub: 'googlechrome' },
+  {urlMatcher: 'github.com/GoogleChromeLabs/', author: 'Google Chrome Labs', twitter: 'ChromiumDev', gitub: 'GoogleChromeLabs'},
+  {urlMatcher: 'github.com/GoogleChrome/', author: 'Google Chrome', twitter: 'ChromiumDev', gitub: 'GoogleChrome'},
 ];
