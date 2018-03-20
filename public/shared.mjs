@@ -32,7 +32,7 @@ export const FEEDS = [
   'https://developers.google.com/web/updates/2017/rss.xml',
   'https://developers.google.com/web/fundamentals/rss.xml',
   'https://developers.google.com/web/tools/rss.xml', // Note: only last 20 items.
-  'https://developers.google.com/web/tools/rss.xml', // Note: only last 20 items.
+  'https://developers.google.com/web/showcase/rss.xml', // Note: only last 20 items.
   'https://developers.google.com/web/shows/rss.xml', // Note: only last 20 items.
   'https://philipwalton.com/atom.xml',
   'https://ericbidelman.tumblr.com/rss',
