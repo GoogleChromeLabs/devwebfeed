@@ -19,7 +19,7 @@
   "dependencies": {
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
-    "firebase": "^4.11.0",
+    "firebase": "^4.12.0",
     "firebase-admin": "^5.11.0",
     "lit-html": "^0.9.0",
     "puppeteer": "^1.2.0",
