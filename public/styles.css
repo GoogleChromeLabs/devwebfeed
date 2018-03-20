@@ -112,7 +112,7 @@ header h4 {
 }
 
 .helpicon, .rssicon {
-  margin-left: calc(var(--default-padding) / 2);
+  margin-left: var(--default-padding-half);
 }
 
 #help {
@@ -134,7 +134,7 @@ header h4 {
 
 .help-close {
   border: 1px solid currentColor;
-  margin-right: calc(var(--default-padding) / 2);
+  margin-right: var(--default-padding-half);
 }
 
 .help-content {
@@ -225,7 +225,7 @@ header h4 {
 }
 
 #filtering {
-  padding: calc(var(--default-padding) / 2);
+  padding: var(--default-padding-half);
   margin-top: var(--default-padding);
   background: var(--material-blue-grey-300);
   border-radius: 3px;
@@ -249,7 +249,7 @@ header h4 {
 
 .filtering-clear {
   display: inline-flex;
-  margin-left: calc(var(--default-padding) / 2);
+  margin-left: var(--default-padding-half);
 }
 
 #posts {
@@ -288,19 +288,19 @@ header h4 {
   text-overflow: ellipsis;
 }
 
-.post_author {
-  font-weight: 500;
-  font-style: italic;
+.post_meta {
+  margin-bottom: var(--default-padding-half);
   color: var(--material-blue-grey-400);
+  font-size: 14px;
+  font-weight: 500;
 }
 
-.post_domain {
-  line-height: 1;
-  font-size: 12px;
-  font-weight: 500;
+.post_author {
   font-style: italic;
-  color: var(--material-blue-grey-400);
-  margin-bottom: calc(var(--default-padding) / 2);
+}
+
+.post_buttons .post_button {
+  margin-right: var(--default-padding-half);
 }
 
 .post_title:empty,

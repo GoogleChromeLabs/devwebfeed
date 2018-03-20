@@ -49,7 +49,7 @@ function renderPostIcon(submitter) {
     return '';
   }
   const submitterStr = submitter.email ? `Submitted by ${submitter.email}` : `Auto-submitted by ${submitter.name}`;
-  return html`<img src="${submitter.picture}" class="profile_pic" title="${submitterStr}">`;
+  return html`<img src="${submitter.picture}" class="post_button profile_pic" title="${submitterStr}">`;
 }
 
 function renderPaginationLinks() {
@@ -107,18 +107,20 @@ function renderPosts(items, container) {
               <div class="overflow flex layout vertical" title="${post.title}">
                 <div class="layout overflow">
                   <a class="post_child post_title" href="${post.url}" target="_blank">${post.title}</a>
+                </div>
+                <div class="post_meta center layout overflow">
+                  <span class="post_child post_domain clickable""
+                        onclick="filterBy('domain', '${post.domain}')">
+                    <img src="${iconSrc(post.domain)}" class="source_icon">${post.domain}
+                  </span>
                   <span class="post_child post_author clickable"
                         onclick="filterBy('author', '${post.author}')">${by}</span>
                 </div>
-                <span class="post_child post_domain clickable""
-                      onclick="filterBy('domain', '${post.domain}')">
-                      <img src="${iconSrc(post.domain)}" class="source_icon">${post.domain}
-                </span>
               </div>
-              <div class="layout">
-                <a href="" class="remove_button" onclick="return handleDelete(this, '${date}', '${post.url}')"
+              <div class="post_buttons layout">
+                <a href="" class="post_button remove_button" onclick="return handleDelete(this, '${date}', '${post.url}')"
                    title="Remove this post"></a>
-                <a href="" class="share_button" onclick="return sharePost(this, '${post.url}', '${post.title}')" title="Share this post"></a>
+                <a href="" class="post_button share_button" onclick="return sharePost(this, '${post.url}', '${post.title}')" title="Share this post"></a>
                 ${renderPostIcon(post.submitter)}
               </div>
             </li>`;
