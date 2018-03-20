@@ -53,7 +53,11 @@ export const FEEDS = [
   // 'https://github.com/googlechromelabs/sw-precache/releases.atom',
   'https://github.com/googlechrome/lighthouse/releases.atom',
   'https://github.com/googlechrome/workbox/releases.atom',
-  'https://github.com/googlechrome/puppeteer/releases.atom'
+  'https://github.com/googlechrome/puppeteer/releases.atom',
+  'https://github.com/GoogleChrome/dialog-polyfill/releases.atom',
+  'https://github.com/GoogleChrome/proxy-polyfill/releases.atom',
+  'https://medium.com/feed/dev-channel',
+  
 ];
 
 export const BLOG_TO_AUTHOR = [
@@ -72,4 +76,5 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'dassur.ma', author: 'Surma'},
   {urlMatcher: 'github.com/GoogleChromeLabs/', author: 'Google Chrome Labs', twitter: 'ChromiumDev', gitub: 'GoogleChromeLabs'},
   {urlMatcher: 'github.com/GoogleChrome/', author: 'Google Chrome', twitter: 'ChromiumDev', gitub: 'GoogleChrome'},
+  {urlMatcher: 'medium.com/feed/dev-channel', author: 'Google Chrome', twitter: 'ChromiumDev'}
 ];
