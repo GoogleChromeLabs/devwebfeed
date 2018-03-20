@@ -56,8 +56,6 @@ export const FEEDS = [
   'https://github.com/googlechrome/puppeteer/releases.atom',
   'https://github.com/GoogleChrome/dialog-polyfill/releases.atom',
   'https://github.com/GoogleChrome/proxy-polyfill/releases.atom',
-  'https://medium.com/feed/dev-channel',
-  
 ];
 
 export const BLOG_TO_AUTHOR = [
