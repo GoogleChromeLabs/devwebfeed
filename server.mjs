@@ -151,7 +151,9 @@ app.use(express.static('node_modules'));
 // SSR render, 3G Slow:
 //   FP/FCP: 2.3s, 8.37s faster!
 app.get('/ssr', catchAsyncErrors(async (req, res) => {
+  const tic = Date.now();
   const html = await doSSR(`${req.getOrigin()}/index.html`, req);
+  res.set('Server-Timing', `Prerender;dur=${Date.now() - tic};desc="Headless render time (ms)"`);
   res.status(200).send(html);
 }));
 
