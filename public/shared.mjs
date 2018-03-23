@@ -28,8 +28,10 @@ export const firebaseConfig = {
 // Note: Prefer RSS feeds work best because atom feeds can have <updated> which the
 // rss-parser npm package treats as a pub date  :\
 export const FEEDS = [
-  'https://developers.google.com/web/updates/2018/rss.xml',
+  'https://developers.google.com/web/updates/2018/rss.xml', // Note: years needed to get all items
   'https://developers.google.com/web/updates/2017/rss.xml',
+  'https://developers.google.com/web/updates/2016/rss.xml',
+  'https://developers.google.com/web/updates/2015/rss.xml',  
   'https://developers.google.com/web/fundamentals/rss.xml',
   'https://developers.google.com/web/tools/rss.xml', // Note: only last 20 items.
   'https://developers.google.com/web/showcase/rss.xml', // Note: only last 20 items.
