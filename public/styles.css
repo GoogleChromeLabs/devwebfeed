@@ -102,7 +102,7 @@ header {
 header .subtitle {
   color: var(--material-blue-grey-300);
   font-size: 18px;
-  margin-bottom: var(--default-padding);
+  margin-bottom: var(--default-padding-half);
 }
 
 header h4 {
@@ -111,8 +111,11 @@ header h4 {
   line-height: 1.2;
 }
 
-.helpicon, .rssicon {
-  margin-left: var(--default-padding-half);
+.action-icons {
+  width: 150px;
+  justify-content: space-evenly;
+  margin: 0 auto;
+  margin-bottom: var(--default-padding);
 }
 
 #help {
