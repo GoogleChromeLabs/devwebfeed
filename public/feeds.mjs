@@ -33,7 +33,9 @@ class Feed {
       let parser = new RssParser();
       parser.parseURL(this.url, (err, feed) => {
         if (err) {
-          return reject(err);
+          console.error(`Error: Could not fetch feed from ${this.url}`);
+          // Don't reject show Promise.all() below doesn't fail. Just want
+          // to ignore failed feeds.
         }
         resolve(feed);
       });
@@ -46,13 +48,16 @@ async function updateFeeds() {
   const tic = Date.now();
 
   const promises = [];
-
   FEEDS.forEach(url => {
     const feed = new Feed(url);
     promises.push(feed.update());
   });
 
   const results = (await Promise.all(promises)).map(feed => {
+    if (!feed) {
+      return [];
+    }
+
     const feedOrigin = new URL(feed.link).origin;
     const feedTitle = feed.title;
     let feedAuthor = '';
