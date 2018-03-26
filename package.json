@@ -12,9 +12,10 @@
     "build": "docker build -t team-contributions .",
     "build-app": "babel --plugins transform-es2015-modules-commonjs -o ./public/app.build.js ./public/app.js",
     "bundle": "rollup -c",
-    "restart": "docker kill team-contributions; yarn build && docker run -dit -p 8080:8080 --rm --name team-contributions --cap-add=SYS_ADMIN team-contributions",
+    "docker": "docker kill team-contributions; yarn build && docker run -dit -p 8080:8080 --rm --name team-contributions --cap-add=SYS_ADMIN team-contributions",
     "deploy": "npm run bundle && gcloud app deploy app.yaml --project devwebfeed",
-    "deploy:cron": "gcloud app deploy cron.yaml --project devwebfeed"
+    "deploy:cron": "gcloud app deploy cron.yaml --project devwebfeed",
+    "dashboard": "npx webdash serve"
   },
   "dependencies": {
     "body-parser": "^1.18.2",
@@ -36,6 +37,11 @@
     "rollup": "^0.57.1",
     "rollup-plugin-filesize": "^1.5.0",
     "rollup-plugin-includepaths": "^0.2.2",
-    "rollup-plugin-uglify": "^3.0.0"
+    "rollup-plugin-uglify": "^3.0.0",
+    "webdash": "^1.0.0",
+    "webdash-npm-scripts": "^1.0.0",
+    "webdash-package-json": "^1.0.0",
+    "webdash-performance-budget": "^1.2.0",
+    "webdash-pwa-manifest": "^1.1.0"
   }
 }
