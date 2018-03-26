@@ -24,6 +24,7 @@ const URL = url.URL;
 import express from 'express';
 import firebaseAdmin from 'firebase-admin';
 import puppeteer from 'puppeteer';
+import GoogleAnalytics from 'universal-analytics';
 
 import * as prerender from './ssr.mjs';
 import Twitter from './public/twitter.mjs';
@@ -33,6 +34,7 @@ import * as dbHelper from './public/firebaseHelper.mjs';
 import RSSFeed from './public/rss.mjs';
 
 const PORT = process.env.PORT || 8080;
+const GA_ACCOUNT = 'UA-114661299-1';
 const twitter = new Twitter('ChromiumDev');
 
 // Async route handlers are wrapped with this to catch rejected promise errors.
@@ -222,6 +224,10 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   const day = req.params.day ? req.params.day.padStart(2, '0') : null;
   const maxResults = req.query.maxresults ? Number(req.query.maxresults) : null;
   const format = req.query.format || null;
+
+  // Record GA pageview.
+  const visitor = GoogleAnalytics(GA_ACCOUNT, {https: true});
+  visitor.pageview(req.originalUrl).send();
 
   const rssPosts = await feeds.collectRSSFeeds();
   const posts = util.uniquePosts(

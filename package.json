@@ -26,7 +26,8 @@
     "puppeteer": "^1.2.0",
     "rss": "^1.2.2",
     "rss-parser": "^3.1.2",
-    "twitter": "^1.7.1"
+    "twitter": "^1.7.1",
+    "universal-analytics": "^0.4.16"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
