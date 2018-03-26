@@ -42,15 +42,20 @@ export const FEEDS = [
   // (e.g d.g.c/web/fundamentals/rss.xml) only returns latest 10 items. We want
   // everything for each year.
   ...flatten([2018, 2017, 2016, 2015].map(year => [
-    `https://developers.google.com/web/fundamentals/${year}/rss.xml`,
     `https://developers.google.com/web/updates/${year}/rss.xml`,
-    `https://developers.google.com/web/tools/${year}/rss.xml`,
-    `https://developers.google.com/web/showcase/${year}/rss.xml`
+    // Enable when https://github.com/google/WebFundamentals/pull/5974 lands.
+    // `https://developers.google.com/web/fundamentals/${year}/rss.xml`,
+    // `https://developers.google.com/web/tools/${year}/rss.xml`,
+    // `https://developers.google.com/web/showcase/${year}/rss.xml`
   ])),
+  'https://developers.google.com/web/fundamentals/rss.xml',
+  'https://developers.google.com/web/tools/rss.xml',
+  'https://developers.google.com/web/showcase/rss.xml',
   // Note: These don't have per-year feeds and only return the latest items.
   'https://developers.google.com/web/shows/rss.xml',
   'https://medium.com/feed/dev-channel',
-  'https://blog.chromium.org/atom.xml', // Note: using ATOM feed so authors are formatted correctly.
+  'https://blog.chromium.org/rss.xml',
+  'https://v8project.blogspot.com/feeds/posts/default?alt=rss',
 
   // Personal blogs.
   'https://philipwalton.com/atom.xml',
@@ -85,7 +90,7 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: '@addyosmani', author: 'Addy Osmani'},
   {urlMatcher: 'robdodson', author: 'Rob Dodson'},
   {urlMatcher: 'mathiasbynens', author: 'Mathias Bynens'},
-  {urlMatcher: 'samdutton', author: 'Mathias Bynens'},
+  {urlMatcher: 'samdutton', author: 'Sam Dutton'},
   {urlMatcher: 'sgom.es', author: 'Sergio Gomes'},
   {urlMatcher: 'developers.google.com', author: 'd.g.c'},
   {urlMatcher: '@samthor', author: 'Sam Thorogood'},

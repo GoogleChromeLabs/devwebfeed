@@ -82,8 +82,14 @@ async function updateFeeds() {
       u.searchParams.delete('utm_source');
       post.link = u.href;
 
-      // If post has an author, it overrides the feed author.
-      const author = post['dc:creator'] || post.creator;
+      // If post has an author, it overrides the feed author. Otherwise,
+      // fallback to feed author.
+      let author = post['dc:creator'] || post.creator || post.author || feedAuthor;
+      // Fix up Blogger authors (e.g. v8 blog).
+      const bloggerAuthor = author.match(/noreply@blogger.com \((.*)\)/);
+      if (bloggerAuthor) {
+        author = bloggerAuthor[1];
+      }
 
       // Github release note titles only include version. Prefix with feed title
       // so link includes the project name.
@@ -103,7 +109,7 @@ async function updateFeeds() {
           picture: 'img/rss_icon_24px.svg',
           bot: true,
         },
-        author: author || feedAuthor,
+        author,
       };
     });
   }).reduce((accum, item) => accum.concat(...item), []);
