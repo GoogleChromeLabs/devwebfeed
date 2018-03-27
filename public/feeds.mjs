@@ -89,6 +89,13 @@ async function updateFeeds() {
       const bloggerAuthor = author.match(/noreply@blogger.com \((.*)\)/);
       if (bloggerAuthor) {
         author = bloggerAuthor[1];
+
+        // Try to capture blogger author at bottom of post.
+        const postedBy = post.content.match(/Posted by (.*)/);
+        if (postedBy) {
+          const by = postedBy[1].replace(/<\/?[^>]+(>|$)/g, '').split(',')[0];
+          author = by;
+        }
       }
 
       // Github release note titles only include version. Prefix with feed title
