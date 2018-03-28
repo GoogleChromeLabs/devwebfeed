@@ -212,7 +212,7 @@ function clearCache() {
  * Removes items from the render cache that start with `origin`
  * @param {string} origin
  */
-function deleteCacheItemsFromOrigin(orign) {
+function deleteCacheItemsFromOrigin(origin) {
   // TODO: be more selective. This nukes all cache entries for URLs that
   // match the page's origin.
   for (const url of RENDER_CACHE.keys()) {
