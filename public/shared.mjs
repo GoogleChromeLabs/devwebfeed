@@ -43,14 +43,10 @@ export const FEEDS = [
   // everything for each year.
   ...flatten([2018, 2017, 2016, 2015].map(year => [
     `https://developers.google.com/web/updates/${year}/rss.xml`,
-    // Enable when https://github.com/google/WebFundamentals/pull/5974 lands.
-    // `https://developers.google.com/web/fundamentals/${year}/rss.xml`,
-    // `https://developers.google.com/web/tools/${year}/rss.xml`,
-    // `https://developers.google.com/web/showcase/${year}/rss.xml`
+    `https://developers.google.com/web/fundamentals/${year}/rss.xml`,
+    `https://developers.google.com/web/tools/${year}/rss.xml`,
+    `https://developers.google.com/web/showcase/${year}/rss.xml`
   ])),
-  'https://developers.google.com/web/fundamentals/rss.xml',
-  'https://developers.google.com/web/tools/rss.xml',
-  'https://developers.google.com/web/showcase/rss.xml',
   // Note: These don't have per-year feeds and only return the latest items.
   'https://developers.google.com/web/shows/rss.xml',
   'https://medium.com/feed/dev-channel',
