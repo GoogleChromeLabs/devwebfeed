@@ -30,6 +30,7 @@ const output = postcss([postCSSCustomVariables()]).process(css)
 
 export default [{
   input: 'public/app.js',
+  // treeshake: false,
   output: {
     file: 'public/app.bundle.js',
     name: 'app',

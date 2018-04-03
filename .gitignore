@@ -1,8 +1,12 @@
 .DS_Store
 node_modules
-serviceAccountKey.json
+*serviceAccountKey.json
 *credentials.json
 *-error.log
 *.pem
 public/**/*.bundle.js
 public/styles.min.css
+
+# Instanbul
+.nyc_output
+coverage

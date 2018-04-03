@@ -263,9 +263,7 @@ app.listen(PORT, () => {
   console.log('Press Ctrl+C to quit.');
   // feeds.updateFeeds();
   // twitter.updateTweets();
-
 });
-
 
 // Make sure node server process stops if we get a terminating signal.
 function processTerminator(sig) {
