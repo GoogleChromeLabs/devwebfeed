@@ -11,6 +11,10 @@ add it to the root folder. It should be named `google_oauth_credentials.json.`.
 - Create `twitter_credentials.json` in the root folder and fill it with the API
 key, consumer key/secret obtained from Twitter.
 
+- Create `analyticsServiceAccountKey.json` in the root folder and fill it with
+service account credentials that are restricted to use the Google Analytics
+Core Reporting API.
+
 ### Installation
 
 Setup it up:
