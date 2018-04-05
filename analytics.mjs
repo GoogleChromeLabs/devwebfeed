@@ -21,22 +21,28 @@ import url from 'url';
 const URL = url.URL;
 import GoogleAPIs from 'googleapis';
 const google = GoogleAPIs.google;
+// import * as util from './public/util.mjs';
 // import GoogleAuth from 'google-auth-library';
 
 let CACHE = new Map();
 
 const START_DATE = '2011-01-01'; // Beginning date to fetch all analytics data for.
-const MIN_PAGEVIEWS = 10;
+const MIN_PAGEVIEWS = 20;
 
 const VIEW_IDS = {
   robdodson: {
     viewId: '57149356',
+    pathRegexs: ['^/'],
     notPathRegexs: ['^/tag/', '^/blog/categories/', '^/author/rob/', '^/blog/page/', '^/page/'],
   },
   ericbidelman: {
     viewId: '48771992',
-    pathRegexs: ['^/post/', '/post/14636214755'],
+    pathRegexs: ['^/post/'],
     removeFromTitles: ' - Eric Bidelman',
+  },
+  mathias: {
+    viewId: '15820579',
+    pathRegexs: ['^/notes/', '^/demo/'],
   },
   // webfu: {viewId: '88450368'},
 };
@@ -90,25 +96,32 @@ class Analytics {
       dimensions: [{name: 'ga:pageTitle'}, {name: 'ga:pagePath'}],
       orderBys: [{fieldName: 'ga:pageviews', sortOrder: 'DESCENDING'}],
       dimensionFilterClauses: [{
+        // Include only some paths.
+        operator: 'OR',
+        filters: [
+          ...pathRegexs.map(regex => {
+            return {
+              dimensionName: 'ga:pagePath',
+              operator: 'REGEXP',
+              expressions: regex,
+            };
+          })
+        ],
+      }, {
+        // Filter out certain paths.
         operator: 'AND',
-        filters: [],
+        filters: [
+          ...notPathRegexs.map(regex => {
+            return {
+              dimensionName: 'ga:pagePath',
+              not: true,
+              operator: 'REGEXP',
+              expressions: [regex],
+            };
+          })
+        ],
       }],
     };
-
-    // Filter by user-provided path regexs.
-    pathRegexs.forEach(regex => query.dimensionFilterClauses[0].filters.push({
-      dimensionName: 'ga:pagePath',
-      operator: 'REGEXP',
-      expressions: pathRegexs,
-    }));
-
-    // Filter out some additional paths.
-    notPathRegexs.forEach(regex => query.dimensionFilterClauses[0].filters.push({
-      dimensionName: 'ga:pagePath',
-      not: true,
-      operator: 'REGEXP',
-      expressions: [regex],
-    }));
 
     const resp = await this.api.reports.batchGet({
       resource: {reportRequests: [query]}
@@ -215,7 +228,7 @@ export {Analytics, updateAnalyticsData};
 // let i = 1;
 // for (const [path, result] of allResults) {
 //   const {title, path, pageviews, users} = result;
-//   console.log(`${i++}. ${path} ${formatNumber(pageviews)} views, ${formatNumber(users)} users`);
+//   console.log(`${i++}. ${path} ${util.formatNumber(pageviews)} views, ${util.formatNumber(users)} users`);
 // }
 
 // })();
