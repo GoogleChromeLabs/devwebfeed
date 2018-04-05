@@ -244,7 +244,7 @@ document.body.classList.toggle('supports-share', !!navigator.share);
   const PRE_RENDERED = container.querySelector('#posts'); // Already exists in DOM if we've SSR.
 
   const params = new URL(location.href).searchParams;
-  const adminMode = params.has('edit');
+  const adminMode = params.has('admin') || params.has('edit');
   const year = params.get('year') || util.currentYear;
   const includeTweets = params.has('tweets');
 
