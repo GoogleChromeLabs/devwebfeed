@@ -59,9 +59,16 @@ function renderPaginationLinks() {
   const newer = yearView + 1;
   const older = yearView - 1;
   const disabled = newer > util.currentYear ? 'disabled' : '';
+
+  const newerLinkParams = new URLSearchParams(params);
+  newerLinkParams.set('year', newer);
+  const olderLinkParams = new URLSearchParams(params);
+  olderLinkParams.set('year', older);
+
   return html`
     <footer class="pagination layout center-center">
-      <a href="?year=${newer}" class="${disabled}">&larr; Newer</a> | <a href="?year=${older}">Older &rarr;</a>
+      <a href="?${newerLinkParams.toString()}" class="${disabled}">&larr; Newer</a> |
+      <a href="?${olderLinkParams.toString()}">Older &rarr;</a>
     </footer>
     `;
 }
