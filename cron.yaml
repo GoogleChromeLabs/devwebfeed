@@ -14,3 +14,8 @@ cron:
   schedule: every 10 minutes
   retry_parameters:
     job_retry_limit: 2
+- description: "Analytics Data update"
+  url: /admin/update/analytics
+  schedule: every day 05:00
+  retry_parameters:
+    job_retry_limit: 1

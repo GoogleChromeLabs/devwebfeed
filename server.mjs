@@ -90,7 +90,6 @@ dbHelper.setApp(firebaseAdmin.initializeApp({
 }));
 
 const app = express();
-const admin = express();
 
 app.use(function forceSSL(req, res, next) {
   const fromCron = req.get('X-Appengine-Cron');
@@ -138,7 +137,7 @@ app.use(express.static('node_modules'));
 // });
 
 // Admin handlers --------------------------------------------------------------
-admin.post('/user/update/:uid', async (req, res) => {
+app.post('/admin/user/update/:uid', async (req, res) => {
   const uid = req.params.uid;
   if (!uid) {
     return res.status(400).json({error: 'Missing uid'});
@@ -150,14 +149,14 @@ admin.post('/user/update/:uid', async (req, res) => {
   res.status(200).json(user.customClaims || {});
 });
 
-admin.get('/update/feeds', async (req, res) => {
+app.get('/admin/update/feeds', async (req, res) => {
   if (!req.get('X-Appengine-Cron')) {
     return res.status(403).send('Sorry, handler runs from GAE cron.');
   }
   res.status(200).json(await feeds.updateFeeds());
 });
 
-admin.get('/update/tweets/:username', async (req, res) => {
+app.get('/admin/update/tweets/:username', async (req, res) => {
   if (!req.get('X-Appengine-Cron')) {
     return res.status(403).send('Sorry, handler runs from GAE cron.');
   }
@@ -165,7 +164,15 @@ admin.get('/update/tweets/:username', async (req, res) => {
   res.status(200).json(await twitter.updateTweets(username));
 });
 
-admin.get('/update/rendercache', async (req, res) => {
+app.get('/admin/update/analytics', async (req, res) => {
+  if (!req.get('X-Appengine-Cron')) {
+    return res.status(403).send('Sorry, handler runs from GAE cron.');
+  }
+  await ga.updateAnalyticsData(true);
+  res.status(200).send('Done');
+});
+
+app.get('/admin/update/rendercache', async (req, res) => {
   if (!req.get('X-Appengine-Cron')) {
     return res.status(403).send('Sorry, handler runs from GAE cron.');
   }
@@ -187,8 +194,6 @@ admin.get('/update/rendercache', async (req, res) => {
 
   res.status(200).send('Render cache updated!');
 });
-
-app.use('/admin', admin);
 // -----------------------------------------------------------------------------
 
 // Client-side version, 3G Slow:
