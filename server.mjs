@@ -32,6 +32,7 @@ import * as feeds from './public/feeds.mjs';
 import * as util from './public/util.mjs';
 import * as dbHelper from './public/firebaseHelper.mjs';
 import RSSFeed from './public/rss.mjs';
+import * as ga from './analytics.mjs';
 
 const PORT = process.env.PORT || 8080;
 const GA_ACCOUNT = 'UA-114661299-1';
@@ -64,6 +65,24 @@ async function doSSR(url, req) {
   return html;
 }
 
+async function getPosts(req, res) {
+  const year = req.params.year || util.currentYear;
+  // Pad values if missing leading '0'.
+  const month = req.params.month ? req.params.month.padStart(2, '0') : null;
+  const day = req.params.day ? req.params.day.padStart(2, '0') : null;
+  const maxResults = req.query.maxresults ? Number(req.query.maxresults) : null;
+
+  // Record GA pageview.
+  const visitor = GoogleAnalytics(GA_ACCOUNT, {https: true});
+  visitor.pageview(req.originalUrl).send();
+
+  const rssPosts = await feeds.collectRSSFeeds();
+  const posts = util.uniquePosts(
+      await dbHelper.getPosts(year, month, day, rssPosts, maxResults));
+
+  return posts;
+}
+
 dbHelper.setApp(firebaseAdmin.initializeApp({
   // credential: firebaseAdmin.credential.applicationDefault()
   credential: firebaseAdmin.credential.cert(
@@ -71,6 +90,7 @@ dbHelper.setApp(firebaseAdmin.initializeApp({
 }));
 
 const app = express();
+const admin = express();
 
 app.use(function forceSSL(req, res, next) {
   const fromCron = req.get('X-Appengine-Cron');
@@ -117,71 +137,37 @@ app.use(express.static('node_modules'));
 //   next();
 // });
 
-// app.get('/stream', async (req, res) => {
-//   res.writeHead(200, {
-//     'Content-Type': 'text/html',
-//     'Cache-Control': 'no-cache',
-//     'Connection': 'keep-alive',
-//     // 'Access-Control-Allow-Origin': '*',
-//     'X-Accel-Buffering': 'no' // Forces Flex App Engine to keep connection open for SSE.
-//   });
+// Admin handlers --------------------------------------------------------------
+admin.post('/user/update/:uid', async (req, res) => {
+  const uid = req.params.uid;
+  if (!uid) {
+    return res.status(400).json({error: 'Missing uid'});
+  }
+  const user = await firebaseAdmin.auth().getUser(uid);
+  const isGoogler = user.email.endsWith('@google.com');
+  await firebaseAdmin.auth().setCustomUserClaims(uid, {admin: isGoogler});
 
-//   let count = 0;
-//   const interval = setInterval(() => {
-//     if (count++ === 5) {
-//       clearInterval(interval);
-//       return res.end();
-//     }
-//     res.write('This is line #' + count + '\n');
-//   }, 1000);
-
-//   res.write('<style>body {color: red;}</style>');
-//   res.write('hi\n');
-
-//   // const url = req.getOrigin();
-//   // const html = await prerender.ssr(url);
-//   // return res.status(200).send(html);
-
-//   // const s = new stream.Readable();
-//   // s.pipe(res);
-//   // s.push(html);
-//   // s.push(null);
-// });
-
-// Client-side version, 3G Slow:
-//   FP: 4s, FCP: 11s
-// SSR render, 3G Slow:
-//   FP/FCP: 2.3s, 8.37s faster!
-app.get('/ssr', catchAsyncErrors(async (req, res) => {
-  const tic = Date.now();
-  const html = await doSSR(`${req.getOrigin()}/index.html`, req);
-  res.set('Server-Timing', `Prerender;dur=${Date.now() - tic};desc="Headless render time (ms)"`);
-  res.status(200).send(html);
-}));
-
-app.get('/tweets/:username', async (req, res) => {
-  const username = req.params.username;
-  res.status(200).json(await twitter.getTweets(username));
+  res.status(200).json(user.customClaims || {});
 });
 
-app.get('/admin/update/feeds', async (req, res) => {
+admin.get('/update/feeds', async (req, res) => {
   if (!req.get('X-Appengine-Cron')) {
-    return res.status(403).send('Sorry, handler can only be run from a GAE cron.');
+    return res.status(403).send('Sorry, handler runs from GAE cron.');
   }
   res.status(200).json(await feeds.updateFeeds());
 });
 
-app.get('/admin/update/tweets/:username', async (req, res) => {
+admin.get('/update/tweets/:username', async (req, res) => {
   if (!req.get('X-Appengine-Cron')) {
-    return res.status(403).send('Sorry, handler can only be run from a GAE cron.');
+    return res.status(403).send('Sorry, handler runs from GAE cron.');
   }
   const username = req.params.username;
   res.status(200).json(await twitter.updateTweets(username));
 });
 
-app.get('/admin/update/rendercache', async (req, res) => {
+admin.get('/update/rendercache', async (req, res) => {
   if (!req.get('X-Appengine-Cron')) {
-    return res.status(403).send('Sorry, handler can only be run from a GAE cron.');
+    return res.status(403).send('Sorry, handler runs from GAE cron.');
   }
 
   const browser = await puppeteer.launch({args: ['--disable-dev-shm-usage']});
@@ -202,6 +188,25 @@ app.get('/admin/update/rendercache', async (req, res) => {
   res.status(200).send('Render cache updated!');
 });
 
+app.use('/admin', admin);
+// -----------------------------------------------------------------------------
+
+// Client-side version, 3G Slow:
+//   FP: 4s, FCP: 11s
+// SSR render, 3G Slow:
+//   FP/FCP: 2.3s, 8.37s faster!
+app.get('/ssr', catchAsyncErrors(async (req, res) => {
+  const tic = Date.now();
+  const html = await doSSR(`${req.getOrigin()}/index.html`, req);
+  res.set('Server-Timing', `Prerender;dur=${Date.now() - tic};desc="Headless render time (ms)"`);
+  res.status(200).send(html);
+}));
+
+app.get('/tweets/:username', async (req, res) => {
+  const username = req.params.username;
+  res.status(200).json(await twitter.getTweets(username));
+});
+
 app.post('/posts', async (req, res) => {
   res.set('Access-Control-Allow-Origin', '*');
   res.set('Access-Control-Allow-Headers', 'Content-Type');
@@ -218,26 +223,32 @@ app.post('/posts', async (req, res) => {
 // });
 
 app.get('/posts/:year?/:month?/:day?', async (req, res) => {
-  const year = req.params.year || util.currentYear;
-  // Pad values if missing leading '0'.
-  const month = req.params.month ? req.params.month.padStart(2, '0') : null;
-  const day = req.params.day ? req.params.day.padStart(2, '0') : null;
-  const maxResults = req.query.maxresults ? Number(req.query.maxresults) : null;
+  let posts = await getPosts(req, res);
+
   const format = req.query.format || null;
-
-  // Record GA pageview.
-  const visitor = GoogleAnalytics(GA_ACCOUNT, {https: true});
-  visitor.pageview(req.originalUrl).send();
-
-  const rssPosts = await feeds.collectRSSFeeds();
-  const posts = util.uniquePosts(
-      await dbHelper.getPosts(year, month, day, rssPosts, maxResults));
-
   if (format === 'rss') {
     const feedUrl = req.getCurrentUrl();
     const xml = (new RSSFeed(feedUrl)).create(posts);
     res.set('Content-Type', 'application/rss+xml');
     return res.status(200).send(xml);
+  }
+
+  // Zest in analytics data if user is admin.
+  try {
+    const user = await firebaseAdmin.auth().getUser(req.query.uid);
+    if (user.customClaims.admin) {
+      const urlMap = await ga.updateAnalyticsData();
+      const titleMap = ga.Analytics.toTitleMap(urlMap);
+      posts = posts.map(post => {
+        const urlMatch = urlMap.get(new URL(post.url).pathname);
+        const titleMatch = titleMap.get(post.title);
+        // console.log(titleMatch, post.title)
+        const match = urlMatch || titleMatch;
+        return match ? Object.assign({pageviews: match.pageviews}, post) : post;
+      });
+    }
+  } catch (err) {
+    // Noop. Pass through posts without analytics data.
   }
 
   // TODO: monitor updates to other years. e.g. If the server is running when
@@ -258,11 +269,12 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   res.status(200).send(posts);
 });
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
-  // feeds.updateFeeds();
+  feeds.updateFeeds(); // initially populate feeds on server bootup.
   // twitter.updateTweets();
+  // await updateAnalyticsData();
 });
 
 // Make sure node server process stops if we get a terminating signal.

@@ -31,7 +31,7 @@ async function fetchPosts(url, maxResults = null) {
     if (maxResults) {
       url.searchParams.set('maxresults', maxResults);
     }
-    const resp = await fetch(url.toString());
+    const resp = await fetch(url.href);
     const json = await resp.json();
     if (!resp.ok || json.error) {
       throw Error(json.error);
@@ -194,11 +194,13 @@ function sharePost(el, url, title) {
   return false;
 }
 
-async function getPosts(forYear, includeTweets = false) {
-  // const lastYearsPosts = await fetchPosts(`/posts/${util.currentYear - 1}`);
-  const thisYearsPosts = await fetchPosts(`/posts/${forYear}`);
+async function getPosts(forYear, includeTweets = false, uid = null) {
+  const url = new URL(`/posts/${forYear}`, location);
+  if (uid) {
+    url.searchParams.set('uid', uid);
+  }
+  const thisYearsPosts = await fetchPosts(url.href);
 
-  // const posts = util.uniquePosts([...thisYearsPosts, ...lastYearsPosts, ...tweets]);
   const posts = thisYearsPosts;
   if (includeTweets) {
     const tweets = await fetchPosts(`/tweets/ChromiumDev`);
@@ -217,6 +219,7 @@ async function initAuth() {
   if (token) {
     const login = document.querySelector('#login');
     const email = login.querySelector('.login-email');
+
     email.addEventListener('click', async e => {
       e.preventDefault();
 
@@ -228,7 +231,8 @@ async function initAuth() {
       login.hidden = true;
     });
 
-    email.textContent = token.email;
+    const admin = await auth.isAdmin(true);
+    email.textContent = token.email + (admin ? ' (admin)' : '');
     login.hidden = false;
   }
 }
@@ -240,30 +244,31 @@ document.body.classList.toggle('supports-share', !!navigator.share);
   const PRE_RENDERED = container.querySelector('#posts'); // Already exists in DOM if we've SSR.
 
   const params = new URL(location.href).searchParams;
+  const adminMode = params.has('edit');
+  const year = params.get('year') || util.currentYear;
+  const includeTweets = params.has('tweets');
 
-  try {
-    // Populates client-side cache for future realtime updates.
-    // Note: this basically results in 2x requests per page load, as we're
-    // making the same requests the server just made. Now repeating them client-side.
-    _posts = await getPosts(params.get('year') || util.currentYear, params.has('tweets'));
+  // Logged in user stuff.
+  let uid = null;
+  if (adminMode) {
+    await initAuth();
+    uid = auth.getUid();
+    container.classList.add('edit');
+  }
 
-    // Posts markup is already in place if we're SSRing. Don't re-render DOM.
-    if (!PRE_RENDERED) {
-      renderPosts(_posts, container);
-    }
+  // Populates client-side cache for future realtime updates.
+  _posts = await getPosts(year, includeTweets, uid);
 
-    realtimeUpdatePosts(util.currentYear);  // Subscribe to realtime firestore updates for current year.
+  // Posts markup is already in place if we're SSRing. Don't re-render DOM.
+  if (!PRE_RENDERED) {
+    renderPosts(_posts, container);
+  }
 
-    if (params.has('edit')) {
-      container.classList.add('edit');
-      await initAuth();
-    } else {
-      for (const key of params.keys()) {
-        filterBy(key, params.get(key));
-      }
-    }
-  } catch (err) {
-    console.error(err);
+  realtimeUpdatePosts(util.currentYear);  // Subscribe to realtime firestore updates for current year.
+
+  // Filter list after data has been set.
+  for (const key of params.keys()) {
+    filterBy(key, params.get(key));
   }
 })();
 

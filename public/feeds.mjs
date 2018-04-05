@@ -129,7 +129,7 @@ async function updateFeeds() {
 }
 
 /**
- * @return Promise<!Array<!Object>>
+ * @return {Promise<!Array<!Object>>}
  */
 function collectRSSFeeds() {
   // Avoid http requests if there are posts in the cache.

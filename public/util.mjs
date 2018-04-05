@@ -34,6 +34,15 @@ function debounce(func, wait, immediate) {
 	};
 }
 
+/**
+ * Prettifies numbers.
+ * @param {number} num
+ */
+function formatNumber(num) {
+  return num >= 1e6 ? `${(num / 1000).toFixed(2)}M` :
+         num >= 1000 ? `${(num / 1000).toFixed(2)}k` : num;
+}
+
 function sortPosts(items) {
   items.sort((a, b) => {
     a = String(a.submitted);
@@ -68,4 +77,4 @@ function uniquePosts(items) {
 
 export const currentYear = String((new Date()).getFullYear());
 
-export {sortPosts, debounce, uniquePosts};
+export {sortPosts, debounce, uniquePosts, formatNumber};

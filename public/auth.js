@@ -69,7 +69,13 @@ export default class GSignIn {
     }
 
     const credential = firebase.auth.GoogleAuthProvider.credential(null, accessToken);
-    return firebase.auth().signInWithCredential(credential);
+    await firebase.auth().signInWithCredential(credential);
+
+    // TODO: This re-POSTs to server on every page refresh if user is not admin.
+    const admin = await this.isAdmin();
+    if (!admin) {
+      await this.updateUserIsAdmin();
+    }
   }
 
   signIn() {
@@ -143,6 +149,10 @@ export default class GSignIn {
     this.token = null;
   }
 
+  getUid() {
+    return firebase && firebase.auth ? firebase.auth().currentUser.uid : null;
+  }
+
   getEmail() {
     if (!this.token) {
       return this.signIn();
@@ -157,5 +167,16 @@ export default class GSignIn {
       return;
     }
     return resp.json();
+  }
+
+  async isAdmin(forceRefresh = false) {
+    const token = await this.authenticated();
+    const idToken = await firebase.auth().currentUser.getIdToken(forceRefresh);
+    const payload = JSON.parse(atob(idToken.split('.')[1]));
+    return payload.admin;
+  }
+
+  async updateUserIsAdmin(uid = this.getUid()) {
+    return await fetch(`/admin/user/update/${uid}`, {method: 'POST', body: ''});
   }
 }

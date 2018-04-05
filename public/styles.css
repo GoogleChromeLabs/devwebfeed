@@ -298,7 +298,7 @@ header h4 {
   font-weight: 500;
 }
 
-.post_author {
+.post_views, .post_author {
   font-style: italic;
 }
 

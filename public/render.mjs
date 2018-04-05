@@ -82,6 +82,17 @@ function iconSrc(domain) {
   return src;
 }
 
+function renderAnalyticsData(post) {
+  if (!post.pageviews) {
+    return '';
+  }
+
+  return html`
+    <span class="post_child post_views" title="${post.pageviews} Google Analytics page views" data-views=${post.pageviews}">
+      ${util.formatNumber(post.pageviews)} views
+    </span>`;
+}
+
 function renderPosts(items, container) {
   util.sortPosts(items);
 
@@ -113,6 +124,7 @@ function renderPosts(items, container) {
                         onclick="filterBy('domain', '${post.domain}')">
                     <img src="${iconSrc(post.domain)}" class="source_icon">${post.domain}
                   </span>
+                  ${renderAnalyticsData(post)}
                   <span class="post_child post_author clickable"
                         onclick="filterBy('author', '${post.author}')">${by}</span>
                 </div>
