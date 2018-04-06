@@ -44,6 +44,16 @@ const VIEW_IDS = {
     viewId: '15820579',
     pathRegexs: ['^/notes/', '^/demo/'],
   },
+  kinlan: {
+    viewId: '39583711',
+    notPathRegexs: ['^/$', '^/tag/'],
+  },
+  // v8: {
+  //   viewId: '106306348',
+  // },
+  // googledevsyoutube: {
+  //   viewId: '75881725',
+  // }
   // webfu: {viewId: '88450368'},
 };
 
