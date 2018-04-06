@@ -117,7 +117,8 @@ app.use(bodyParser.json());
 // Handle index.html page dynamically.
 app.get('/', async (req, res, next) => {
   // Serve prerendered page to search crawlers.
-  if (req.get('User-Agent').match(/googlebot|bingbot/i)) {
+  const ua = req.get('User-Agent');
+  if (ua && ua.match(/googlebot|bingbot/i)) {
     const html = await doSSR(`${req.getOrigin()}/index.html`, req);
     // res.append('Link', `<${url}/styles.css>; rel=preload; as=style`); // Push styles.
     return res.status(200).send(html);
@@ -247,7 +248,6 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
       posts = posts.map(post => {
         const urlMatch = urlMap.get(new URL(post.url).pathname);
         const titleMatch = titleMap.get(post.title);
-        // console.log(titleMatch, post.title)
         const match = urlMatch || titleMatch;
         return match ? Object.assign({pageviews: match.pageviews}, post) : post;
       });
