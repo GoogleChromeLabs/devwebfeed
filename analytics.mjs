@@ -46,7 +46,7 @@ const VIEW_IDS = {
   },
   kinlan: {
     viewId: '39583711',
-    notPathRegexs: ['^/$', '^/tag/'],
+    notPathRegexs: ['^/tag/'],
   },
   // v8: {
   //   viewId: '106306348',
@@ -91,7 +91,7 @@ class Analytics {
    * @return {!{report: !Object, headers: !Array<{type: string, name: string}>}}
    */
   async query({viewId, startDate = '30daysAgo', endDate = 'yesterday',
-               pathRegexs = ['/'], notPathRegexs = []} = {}) {
+               pathRegexs = [], notPathRegexs = []} = {}) {
     const query = {
       viewId,
       dateRanges: [{startDate, endDate}],
@@ -161,6 +161,8 @@ class Analytics {
         }
       });
     });
+
+    urlMap.delete('/'); // Ignore homepages.
 
     return {
       results: urlMap,
