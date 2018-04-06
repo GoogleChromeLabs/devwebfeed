@@ -54,6 +54,7 @@ function renderPostIcon(submitter) {
 
 function renderPaginationLinks() {
   const params = new URL(location.href).searchParams;
+  params.delete('headlesss');
   const yearView = parseInt(params.get('year') || util.currentYear);
 
   const newer = yearView + 1;
