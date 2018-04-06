@@ -19,7 +19,6 @@
 export default class GSignIn {
   constructor() {
     this.CLIENT_ID = '1067674167387-tbujmtjm5i6kf4ffqgck54pm7jnh05o9.apps.googleusercontent.com';
-    this.REDIRECT_URI = location.href;
     this.token = null;
   }
 
@@ -32,10 +31,10 @@ export default class GSignIn {
 
   async init() {
     const params = new Map(location.hash.substr(1).split('&').map(param => param.split('=')));
-
     const accessToken = params.get('access_token');
     if (accessToken) {
-      window.history.replaceState({}, '', location.pathname + location.search);
+      const originalParams = decodeURIComponent(params.get('state'));
+      window.history.replaceState({}, '', `${location.pathname}?${originalParams}`);
       const profileInfo = await this.getTokenInfo(accessToken);
       const token = Object.assign(profileInfo, {accessToken});
       localStorage.setItem('token', JSON.stringify(token));
@@ -88,10 +87,11 @@ export default class GSignIn {
 
     const params = {
       'client_id': this.CLIENT_ID,
-      'redirect_uri': this.REDIRECT_URI,
+      'redirect_uri': `${location.origin}${location.pathname}?admin`, // redirect to base url.
       'scope': scopes.join(' '),
       'include_granted_scopes': 'true',
       'response_type': 'token', // 'code'
+      'state': new URL(location).searchParams.toString(),
     };
 
     // Add form parameters as hidden input values.
@@ -120,6 +120,7 @@ export default class GSignIn {
         if (resp.status !== 200) {
           console.log('Refreshing token...');
           localStorage.removeItem('token');
+
           return this.signIn();
         }
         return resp.json();

@@ -145,6 +145,7 @@ header h4 {
   padding: calc(var(--default-padding) * 2);
   border-radius: 5px;
   color: #fff;
+  max-width: 550px;
 }
 
 .help-content a {

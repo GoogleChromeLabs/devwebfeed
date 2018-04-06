@@ -27,7 +27,7 @@ let auth;
 
 async function fetchPosts(url, maxResults = null) {
   try {
-    url = new URL(url, document.baseURI);
+    url = new URL(url, location);
     if (maxResults) {
       url.searchParams.set('maxresults', maxResults);
     }
@@ -243,7 +243,7 @@ document.body.classList.toggle('supports-share', !!navigator.share);
 (async() => {
   const PRE_RENDERED = container.querySelector('#posts'); // Already exists in DOM if we've SSR.
 
-  const params = new URL(location.href).searchParams;
+  let params = new URL(location.href).searchParams;
   const adminMode = params.has('admin') || params.has('edit');
   const year = params.get('year') || util.currentYear;
   const includeTweets = params.has('tweets');
@@ -253,6 +253,7 @@ document.body.classList.toggle('supports-share', !!navigator.share);
   if (adminMode) {
     await initAuth();
     uid = auth.getUid();
+    document.querySelector('.title a').href = `${location.pathname}?admin`;
     container.classList.add('edit');
   }
 
@@ -267,6 +268,7 @@ document.body.classList.toggle('supports-share', !!navigator.share);
   realtimeUpdatePosts(util.currentYear);  // Subscribe to realtime firestore updates for current year.
 
   // Filter list after data has been set.
+  params = new URL(location.href).searchParams; // get params again since they may have changed since auth.
   for (const key of params.keys()) {
     filterBy(key, params.get(key));
   }
