@@ -52,6 +52,10 @@ const VIEW_IDS = {
     viewId: '111558050',
     pathRegexs: ['^/things/'],
   },
+  jason: {
+    viewId: '105201406',
+    notPathRegexs: ['^/tag/', '^/author/developit/'],
+  },
   // v8: {
   //   viewId: '106306348',
   // },

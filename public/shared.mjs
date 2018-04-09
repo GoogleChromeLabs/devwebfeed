@@ -66,6 +66,7 @@ export const FEEDS = [
   'https://mathiasbynens.be/notes.rss',
   'https://meowni.ca/atom.xml',
   'https://dassur.ma/index.xml',
+  'https://jasonformat.com/rss/',
 
   // Github releases.
   'https://github.com/googlechrome/lighthouse/releases.atom',
@@ -94,5 +95,6 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'dassur.ma', author: 'Surma'},
   {urlMatcher: 'github.com/GoogleChromeLabs/', author: 'Google Chrome Labs', twitter: 'ChromiumDev', gitub: 'GoogleChromeLabs'},
   {urlMatcher: 'github.com/GoogleChrome/', author: 'Google Chrome', twitter: 'ChromiumDev', gitub: 'GoogleChrome'},
-  {urlMatcher: 'medium.com/feed/dev-channel', author: 'Google Chrome', twitter: 'ChromiumDev'}
+  {urlMatcher: 'medium.com/feed/dev-channel', author: 'Google Chrome', twitter: 'ChromiumDev'},
+  {urlMatcher: 'jasonformat.com', author: 'Jason Miller', twitter: '_developit'},
 ];
