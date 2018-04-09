@@ -27,7 +27,7 @@ const google = GoogleAPIs.google;
 let CACHE = new Map();
 
 const START_DATE = '2011-01-01'; // Beginning date to fetch all analytics data for.
-const MIN_PAGEVIEWS = 20;
+const MIN_PAGEVIEWS = 25;
 
 const VIEW_IDS = {
   robdodson: {
@@ -47,6 +47,10 @@ const VIEW_IDS = {
   kinlan: {
     viewId: '39583711',
     notPathRegexs: ['^/tag/'],
+  },
+  surma: {
+    viewId: '111558050',
+    pathRegexs: ['^/things/'],
   },
   // v8: {
   //   viewId: '106306348',
