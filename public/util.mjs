@@ -39,7 +39,7 @@ function debounce(func, wait, immediate) {
  * @param {number} num
  */
 function formatNumber(num) {
-  return num >= 1e6 ? `${(num / 1000).toFixed(2)}M` :
+  return num >= 1e6 ? `${(num / 1e6).toFixed(2)}M` :
          num >= 1000 ? `${(num / 1000).toFixed(2)}k` : num;
 }
 
