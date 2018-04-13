@@ -48,6 +48,13 @@ function renderPostIcon(submitter) {
   if (!submitter || !submitter.picture) {
     return '';
   }
+  // Request properly sized images.
+  const size = Math.ceil(24 * window.devicePixelRatio);
+  if (!submitter.picture.includes(`/s${size}`) && submitter.picture.includes('googleusercontent.com')) {
+    const parts = submitter.picture.split('/');
+    parts.splice(parts.length - 1, 0, `s${size}-c`);
+    submitter.picture = parts.join('/');
+  }
   const submitterStr = submitter.email ? `Submitted by ${submitter.email.split('@')[0]}` : `Auto-submitted by ${submitter.name}`;
   return html`<img src="${submitter.picture}" class="post_button profile_pic" title="${submitterStr}">`;
 }
