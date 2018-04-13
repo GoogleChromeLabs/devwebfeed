@@ -27,7 +27,7 @@ const google = GoogleAPIs.google;
 let CACHE = new Map();
 
 const START_DATE = '2011-01-01'; // Beginning date to fetch all analytics data for.
-const MIN_PAGEVIEWS = 25;
+const MIN_PAGEVIEWS = 30;
 
 const VIEW_IDS = {
   robdodson: {
@@ -56,13 +56,17 @@ const VIEW_IDS = {
     viewId: '105201406',
     notPathRegexs: ['^/tag/', '^/author/developit/'],
   },
-  // v8: {
-  //   viewId: '106306348',
-  // },
+  v8: {
+    viewId: '106306348',
+    pathRegexs: ['^/\\d{4}/\\d{2}/.*.html'],
+  },
   // googledevsyoutube: {
   //   viewId: '75881725',
   // }
-  // webfu: {viewId: '88450368'},
+  webfu: {
+    viewId: '88450368',
+    pathRegexs: ['^/web/'],
+  },
 };
 
 // const creds = JSON.parse(fs.readFileSync('./google_oauth_credentials.json'));
@@ -99,11 +103,13 @@ class Analytics {
    * @return {!{report: !Object, headers: !Array<{type: string, name: string}>}}
    */
   async query({viewId, startDate = '30daysAgo', endDate = 'yesterday',
-               pathRegexs = [], notPathRegexs = []} = {}) {
+               pathRegexs = [], notPathRegexs = [], pageToken = null} = {}) {
     const query = {
       viewId,
       dateRanges: [{startDate, endDate}],
       metrics: [{expression: 'ga:pageviews'}, {expression: 'ga:users'}],
+      pageSize: 100000, // 10k is supposed API max, but it can go up to 100k :)
+      pageToken,
       metricFilterClauses: [{
         filters: [{
           metricName: 'ga:pageviews',
@@ -148,6 +154,15 @@ class Analytics {
     const report = resp.data.reports[0];
     const headers = report.columnHeader.metricHeader.metricHeaderEntries;
     const urlMap = new Map();
+
+    // console.log(report.data.rowCount, report.data.rows.length, report.nextPageToken)
+    // // TODO: support pagination. Doesn't appear to work.
+    // // report.data.rows is missing but rowCount is filled :\
+    // if (report.nextPageToken) {
+    //   query.pageToken = report.nextPageToken;
+    //   const result = await this.query(query);
+    //   // console.log(result)
+    // }
 
     if (!report.data.rowCount) {
       return {results: urlMap, headers, startDate, endDate, rowCount: 0};
