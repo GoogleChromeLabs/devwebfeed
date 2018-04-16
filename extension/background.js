@@ -82,7 +82,7 @@ function getAuthor(tab) {
       const itemPropAuthor = document.querySelector('[itemprop="author"]');
       const name = itemPropAuthor ? itemPropAuthor.querySelector('[itemprop="name"]') || itemPropAuthor : null;
       if (name) {
-        return name.textContent.split(/\s/).filter(item => item).join(' ');
+        return name.textContent.split(/\\s/).filter(item => item).join(' ');
       }
     }
     getAuthor();
