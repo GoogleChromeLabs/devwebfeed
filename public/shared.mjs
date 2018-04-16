@@ -92,7 +92,7 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'developers.google.com', author: 'd.g.c'},
   {urlMatcher: '@samthor', author: 'Sam Thorogood'},
   {urlMatcher: 'meowni.ca', author: 'Monica Dinculescu'},
-  {urlMatcher: 'dassur.ma', author: 'Surma'},
+  {urlMatcher: 'dassur.ma', author: 'Surma', github: 'surma'},
   {urlMatcher: 'github.com/GoogleChromeLabs/', author: 'Google Chrome Labs', twitter: 'ChromiumDev', gitub: 'GoogleChromeLabs'},
   {urlMatcher: 'github.com/GoogleChrome/', author: 'Google Chrome', twitter: 'ChromiumDev', gitub: 'GoogleChrome'},
   {urlMatcher: 'medium.com/feed/dev-channel', author: 'Google Chrome', twitter: 'ChromiumDev'},
