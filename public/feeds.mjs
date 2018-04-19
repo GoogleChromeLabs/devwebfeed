@@ -113,7 +113,7 @@ async function updateFeeds() {
         submitter: {
           name: 'RSS bot',
           email: '',
-          picture: 'img/rss_icon_24px.svg',
+          picture: '/img/rss_icon_24px.svg',
           bot: true,
         },
         author,

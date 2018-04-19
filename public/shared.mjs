@@ -14,16 +14,9 @@
  * limitations under the License.
  */
 
-'use strict';
+ import {flatten} from './util.mjs';
 
-/**
- * Flattens an array.
- * @param {!Array<string|!Array<string>>} arr
- * @return {!Array<string>}
- */
-function flatten(arr) {
-  return arr.reduce((acc, val) => acc.concat(val), []);
-}
+'use strict';
 
 export const firebaseConfig = {
   apiKey: "AIzaSyAmC91ijb6UlfRum9i4-3NKPa9PVl1tWz8",

@@ -20,21 +20,11 @@ import * as util from './util.mjs';
 
 const container = document.querySelector('#container');
 
-function formatDate(dateStr) {
-  try {
-    const date = new Date(dateStr);
-    return new Intl.DateTimeFormat(
-        'en-US', {year: 'numeric', month: 'short', day: 'numeric'}).format(date);
-  } catch (err) {
-    console.error(dateStr, err);
-  }
-}
-
 function groupBySubmittedDate(items) {
   const map = new Map();
 
   items.forEach(item => {
-    const submitted = formatDate(item.submitted);
+    const submitted = util.formatDate(item.submitted);
     if (!map.has(submitted)) {
       map.set(submitted, []);
     }
@@ -84,15 +74,15 @@ function renderPaginationLinks() {
 function iconSrc(domain) {
   let src = '';
   if (domain.match('github.com')) {
-    src = 'img/github_icon.svg';
+    src = '/img/github_icon.svg';
   } else if (domain.match('developers.google.com')) {
-    src = 'img/wf_icon.png';
+    src = '/img/wf_icon.png';
   } else if (domain.match('twitter.com')) {
-    src = 'img/twitter_icon.png';
+    src = '/img/twitter_icon.png';
   } else if (domain.match('chromium.org')) {
-    src = 'img/chromium_logo.svg';
+    src = '/img/chromium_logo.svg';
   } else if (domain.match('youtu.be') || domain.match('youtube.com')) {
-    src = 'img/youtube_64px.png';
+    src = '/img/youtube_64px.png';
   }
   return src;
 }
@@ -109,7 +99,7 @@ function renderAnalyticsData(post) {
 }
 
 function renderPosts(items, container) {
-  util.sortPosts(items);
+  util.sortPostsByDate(items);
 
   // Group posts by the date they were submitted.
   items = groupBySubmittedDate(items);
@@ -155,7 +145,7 @@ function renderPosts(items, container) {
 
         return html`
           <li class="posts_group">
-            <h3 class="post_date">${formatDate(date)}</h3>
+            <h3 class="post_date">${util.formatDate(date)}</h3>
             <ol>${postTmplResults}</ol>
           </li>
         `;

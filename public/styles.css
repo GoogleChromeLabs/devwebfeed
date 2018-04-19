@@ -4,6 +4,7 @@
 :root {
   --default-padding: 16px;
   --default-padding-half: 8px;
+  --material-blue-grey-50: #ECEFF1;
   --material-blue-grey-100: #CFD8DC;
   --material-blue-grey-300: #90A4AE;
   --material-blue-grey-400: #78909C;
@@ -218,6 +219,9 @@ header h4 {
 
 .clickable {
   cursor: help;
+}
+.sortable {
+  cursor: ns-resize;
 }
 
 #container {

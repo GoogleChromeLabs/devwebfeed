@@ -14,6 +14,15 @@
  * limitations under the License.
  */
 
+/**
+ * Flattens an array.
+ * @param {!Array<string|!Array<string>>} arr
+ * @return {!Array<string>}
+ */
+function flatten(arr) {
+  return arr.reduce((acc, val) => acc.concat(val), []);
+}
+
 function debounce(func, wait, immediate) {
 	let timeout;
 	return function() {
@@ -43,7 +52,7 @@ function formatNumber(num) {
          num >= 1000 ? `${(num / 1000).toFixed(2)}k` : num;
 }
 
-function sortPosts(items) {
+function sortPostsByDate(items) {
   items.sort((a, b) => {
     a = String(a.submitted);
     b = String(b.submitted);
@@ -75,6 +84,16 @@ function uniquePosts(items) {
   return uniqueByProperty(items, 'title');
 }
 
+function formatDate(dateStr, monthFormat = 'short') {
+  try {
+    const date = new Date(dateStr);
+    return new Intl.DateTimeFormat(
+        'en-US', {year: 'numeric', month: monthFormat, day: 'numeric'}).format(date);
+  } catch (err) {
+    console.error(dateStr, err);
+  }
+}
+
 export const currentYear = String((new Date()).getFullYear());
 
-export {sortPosts, debounce, uniquePosts, formatNumber};
+export {sortPostsByDate, flatten, debounce, uniquePosts, formatNumber, formatDate};

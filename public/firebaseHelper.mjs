@@ -121,7 +121,7 @@ async function getPosts(year, month, day, otherPosts = [], maxResults = null) {
     }
 
     // TODO: construct a db query that returns sorted results.
-    util.sortPosts(items);
+    util.sortPostsByDate(items);
 
     // if (doc.exists) {
     //   console.log(doc.data())

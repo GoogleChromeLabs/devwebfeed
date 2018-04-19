@@ -16,7 +16,7 @@
 
 // https://developers.google.com/identity/protocols/OAuth2UserAgent
 
-export default class GSignIn {
+class GSignIn {
   constructor() {
     this.CLIENT_ID = '1067674167387-tbujmtjm5i6kf4ffqgck54pm7jnh05o9.apps.googleusercontent.com';
     this.token = null;
@@ -33,11 +33,16 @@ export default class GSignIn {
     const params = new Map(location.hash.substr(1).split('&').map(param => param.split('=')));
     const accessToken = params.get('access_token');
     if (accessToken) {
-      const originalParams = decodeURIComponent(params.get('state'));
-      window.history.replaceState({}, '', `${location.pathname}?${originalParams}`);
+      const state = params.get('state');
       const profileInfo = await this.getTokenInfo(accessToken);
       const token = Object.assign(profileInfo, {accessToken});
       localStorage.setItem('token', JSON.stringify(token));
+
+      // Redirect to where the user started the auth journey.
+      const url = new URL(state, location);
+      url.hash = '';
+      location.href = url.href;
+      return;
     }
 
     this.token = JSON.parse(localStorage.getItem('token'));
@@ -87,11 +92,11 @@ export default class GSignIn {
 
     const params = {
       'client_id': this.CLIENT_ID,
-      'redirect_uri': `${location.origin}${location.pathname}?admin`, // redirect to base url.
+      'redirect_uri': `${location.origin}/oauth2callback`, // redirect to base url.
       'scope': scopes.join(' '),
       'include_granted_scopes': 'true',
       'response_type': 'token', // 'code'
-      'state': new URL(location).searchParams.toString(),
+      'state': location.href.replace(location.origin, ''),
     };
 
     // Add form parameters as hidden input values.
@@ -180,4 +185,26 @@ export default class GSignIn {
   async updateUserIsAdmin(uid = this.getUid()) {
     return await fetch(`/admin/user/update/${uid}`, {method: 'POST', body: ''});
   }
+
+  async initLoggedInUI() {
+    const login = document.querySelector('#login');
+    const email = login.querySelector('.login-email');
+
+    email.addEventListener('click', async e => {
+      e.preventDefault();
+
+      if (!confirm('Logout?')) {
+        return false;
+      }
+
+      await this.signOut();
+      login.hidden = true;
+    });
+
+    const admin = await this.isAdmin(true);
+    email.textContent = this.token.email + (admin ? ' (admin)' : '');
+    login.hidden = false;
+  }
 }
+
+export {GSignIn};

@@ -212,28 +212,12 @@ async function getPosts(forYear, includeTweets = false, uid = null) {
 }
 
 async function initAuth() {
-  const GSignIn = (await import('./auth.js')).default;
+  const {GSignIn} = await import('./auth.js');
   auth = new GSignIn();
 
   const token = await auth.init();
   if (token) {
-    const login = document.querySelector('#login');
-    const email = login.querySelector('.login-email');
-
-    email.addEventListener('click', async e => {
-      e.preventDefault();
-
-      if (!confirm('Logout?')) {
-        return false;
-      }
-
-      await auth.signOut();
-      login.hidden = true;
-    });
-
-    const admin = await auth.isAdmin(true);
-    email.textContent = token.email + (admin ? ' (admin)' : '');
-    login.hidden = false;
+    auth.initLoggedInUI();
   }
 }
 

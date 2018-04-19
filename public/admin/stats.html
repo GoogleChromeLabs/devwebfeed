@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>dev-web firehose: stats</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#37474F">
+  <meta name="description" content="Developer resource from Google Web DevRel and from around the web.">
+  <meta name="keywords" clearcontent="HTML,CSS,JavaScript,web,PWA,tutorials,code,tweets">
+  <meta name="author" content="Eric Bidelman">
+  <meta name="google-site-verification" content="j4g2UAPd-Fnxh2o_daravb8lvXwZuatJt5kVSbdM0Fc" />
+  <link rel="alternate" type="application/rss+xml" href="https://devwebfeed.appspot.com/posts/?format=rss" title="DevWeb Firehose RSS feed">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/img/firehose.png">
+  <link rel="icon" sizes="192x192" href="img/firehose.png">
+  <link rel="shortcut icon" href="/img/firehose.png">
+  <link rel="stylesheet" href="/styles.css">
+  <link rel="modulepreload" href="/render.mjs">
+  <link rel="modulepreload" href="/lit-html/lit-html.js">
+  <link rel="modulepreload" href="/lit-html/lib/repeat.js">
+  <style>
+    table {
+      border-spacing: 0;
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+      font-size: 14px;
+    }
+    table th {
+      height: 55px;
+      color: #fff;
+      background-color: var(--material-blue-grey-400);
+      line-height: 1.4;
+      user-select: none;
+    }
+    table tr:hover {
+      background-color: var(--material-blue-grey-50);
+    }
+    table td, table th {
+      text-align: left;
+    }
+    table td {
+      /* border: 1px solid var(--material-blue-grey-50); */
+      padding: calc(var(--default-padding-half) / 2);
+    }
+    table .center {
+      text-align: center;
+    }
+    table .right {
+      text-align: right;
+    }
+    .bold {
+      font-weight: 600;
+    }
+    .post_domain {
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+<main>
+  <header>
+    <span id="login" class="layout center" hidden>
+      <a class="login-email" href="#" title="Click here to sign out"></a>
+    </span>
+    <hgroup>
+      <h1 class="title layout center-center"><a href="./stats">dev-web firehose</a></h1>
+      <h4 class="subtitle">stats &amp; analytics</h4>
+    </hgroup>
+    <div id="filtering" class="layout center-center" hidden>
+      <span>Filtering posts by "<span class="filtering-needle"></span>".</span>
+      <a href="#" class="filtering-clear" onclick="return clearFilters()"><img src="/img/clear_white_24px.svg"></a>
+    </div>
+  </header>
+  <div>
+    <table>
+      <thead>
+        <tr>
+          <th style="width:20px;border-top-left-radius:5px;"></th>
+          <th style="width:340px;">URL</th>
+          <th style="width:100px">Domain</th>
+          <th style="width:65px;" id="views" class="sortable" onclick="sortByPageviews()">Views</th>
+          <th style="width:120px;">Author</th>
+          <th style="width:80px;border-top-right-radius:5px;" class="sortable" onclick="sortByDate()">Date</th>
+        </tr>
+        <tbody id="container">
+          <tr>
+            <td colspan="6">
+              <div class="progress">
+                <div class="indeterminate"></div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </thead>
+    </table>
+  </div>
+</main>
+<!-- TODO: use import() when Firebase supports modules -->
+<!-- TODO: figure out why headless isn't liking the local node versions of these urls. -->
+<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-firestore.js"></script>
+<script type="module" src="./stats.js"></script>
+<!-- Make client-side version work in Browsers that don't support ES modules. -->
+<!-- <script nomodule src="/stats.bundle.js"></script> -->
+<!-- <script async src="https://www.googletagmanager.com/gtag/js?id=UA-114661299-1"></script> -->
+<script>
+  // window.dataLayer = window.dataLayer || [];
+  // function gtag(){dataLayer.push(arguments);}
+  // gtag('js', new Date());
+  // gtag('config', 'UA-114661299-1');
+
+  // if ('serviceWorker' in navigator) {
+  //   navigator.serviceWorker.register('/sw.js')
+  //     .then(reg => console.log('SW registered!'))
+  //     .catch(err => console.error('Boo!', err));
+  // }
+</script>
+</body>
+</html>

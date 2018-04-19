@@ -1,0 +1,10 @@
+<!doctype html>
+<script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-app.js"></script>
+<script type="module">
+async function initAuth() {
+  const {GSignIn} = await import('./auth.js');
+  const auth = new GSignIn();
+  const token = await auth.init();
+}
+initAuth();
+</script>
