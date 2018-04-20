@@ -156,7 +156,7 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
     await page.waitForSelector('#posts'); // wait for posts to be in DOM.
   } catch (err) {
     browserWSEndpoint = null;
-    console.err(err);
+    console.error(err);
     await browser.close();
     throw new Error('page.goto/waitForSelector timed out.');
   }
