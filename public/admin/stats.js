@@ -164,7 +164,7 @@ function renderTable(posts) {
             <a href="${item.url}" target="_blank" class="post_url overflow">${item.title || item.domain + url.pathname}</a>
           </td>
           <td onclick="filterBy('domain', '${item.domain}')">
-            <div class="post_domain overflow">${item.domain}</div>
+            <div class="post_domain clickable overflow">${item.domain}</div>
           </td>
           <td>${renderAnalyticsData(item)}</td>
           <td class="clickable" onclick="filterBy('author', '${author}')">
