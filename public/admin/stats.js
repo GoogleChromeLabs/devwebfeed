@@ -159,7 +159,7 @@ function renderTable(posts) {
       const url = new URL(item.url);
       return html`
         <tr>
-          <td><div class="oveflow" style="width:8px;">${i + 1}.</span></td>
+          <td><div class="oveflow" style="width:15px;">${i + 1}.</span></td>
           <td>
             <a href="${item.url}" target="_blank" class="post_url overflow">${item.title || item.domain + url.pathname}</a>
           </td>
