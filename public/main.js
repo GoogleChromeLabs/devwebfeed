@@ -215,10 +215,11 @@ async function initAuth() {
   const {GSignIn} = await import('./auth.js');
   auth = new GSignIn();
 
-  const token = await auth.init();
-  if (token) {
-    auth.initLoggedInUI();
+  const uid = await auth.init();
+  if (uid) {
+    container.classList.add('edit');
   }
+  return uid;
 }
 
 // Add sharing icon if supported by the browser.
@@ -228,18 +229,10 @@ document.body.classList.toggle('supports-share', !!navigator.share);
   const PRE_RENDERED = container.querySelector('#posts'); // Already exists in DOM if we've SSR.
 
   let params = new URL(location.href).searchParams;
-  const adminMode = params.has('admin') || params.has('edit');
   const year = params.get('year') || util.currentYear;
   const includeTweets = params.has('tweets');
 
-  // Logged in user stuff.
-  let uid = null;
-  if (adminMode) {
-    await initAuth();
-    uid = auth.getUid();
-    document.querySelector('.title a').href = `${location.pathname}?admin`;
-    container.classList.add('edit');
-  }
+  const uid = await initAuth(); // Check user's auth state.
 
   // Populates client-side cache for future realtime updates.
   _posts = await getPosts(year, includeTweets, uid);

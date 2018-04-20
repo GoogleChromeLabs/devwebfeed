@@ -134,10 +134,10 @@ async function initAuth() {
   const {GSignIn} = await import('../../auth.js');
   auth = new GSignIn();
 
-  const token = await auth.init().then(() => auth.authenticated());
-  if (token) {
-    auth.initLoggedInUI();
-  }
+  const uid = await auth.init();
+  const token = await auth.authenticated();
+
+  return uid;
 }
 
 function renderAnalyticsData(post) {
@@ -185,9 +185,7 @@ function renderTable(posts) {
   let params = new URL(location.href).searchParams;
   const year = params.get('year') || util.currentYear;
 
-  // Auto-login user.
-  await initAuth();
-  const uid = auth.getUid();
+  const uid = await initAuth(); // Check user's auth state.
 
   _posts = await Promise.all([
     getPosts(year, uid),

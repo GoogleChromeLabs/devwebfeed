@@ -43,7 +43,7 @@ add posts.
 Navigate to http://localhost:8080/ssr will server the server-side rendered version of the app
 using headless Chrome.
 
-Adding `?edit` to the URL will allow you to remove posts submitted by humans (not bot posts like
+Signing in (top of the page) allows admins to remove posts submitted by humans (not bot posts like
 RSS or Tweets). The first time you try to remove a post, you'll sign in through Google's OAuth flow.
 
 ## Deploy

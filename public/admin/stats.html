@@ -59,17 +59,20 @@
       display: block;
       width: 100px;
     }
-    .post_domain {
+    .post_author {
       width: 50px;
     }
-    .post_author {
-      width: 100px;
+    .post_domain {
+      width: 50px;
     }
     @media screen and (min-width: 768px) {
       .post_url{
         width: 200px;
       }
       .post_domain {
+        width: 100px;
+      }
+      .post_author {
         width: 100px;
       }
     }
@@ -79,8 +82,9 @@
 
 <main>
   <header>
-    <span id="login" class="layout center" hidden>
-      <a class="login-email" href="#" title="Click here to sign out"></a>
+    <span id="login" class="layout center">
+      <a href="#" class="login-pic" title="Sign in"><img src="/img/user_24px.svg"></a>
+      <a href="#" class="login-email" title="Click here to sign out"><img src="/img/user-signed-in.svg"></a>
     </span>
     <hgroup>
       <h1 class="title layout center-center"><a href="./stats">dev-web firehose</a></h1>

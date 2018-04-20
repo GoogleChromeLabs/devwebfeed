@@ -91,9 +91,20 @@ header {
 
 #login {
   position: absolute;
-  right: calc(-1 * var(--default-padding));
-  top: calc(-1 * var(--default-padding));
-  font-size: 14px;
+  right: 0;
+  top: 0;
+  font-size: 12px;
+}
+#login.authenticated .login-pic {
+  display: none;
+}
+
+.login-email {
+  display: none;
+}
+
+#login.authenticated .login-email {
+  display: initial;
 }
 
 .title a {

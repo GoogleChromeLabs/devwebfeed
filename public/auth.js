@@ -57,7 +57,9 @@ class GSignIn {
       await this.loadAndInitFirebase(this.token.accessToken);
     }
 
-    return this.token;
+    this.initLoggedInUI();
+
+    return this.getUid();
   }
 
   async loadAndInitFirebase(accessToken) {
@@ -189,21 +191,30 @@ class GSignIn {
   async initLoggedInUI() {
     const login = document.querySelector('#login');
     const email = login.querySelector('.login-email');
+    login.addEventListener('click', e => {
+      if (login === e.target || login.contains(e.target)) {
+        e.preventDefault();
 
-    email.addEventListener('click', async e => {
-      e.preventDefault();
+        this.authenticated().then(async token => {
+          if (token) {
+            login.classList.add('authenticated');
 
-      if (!confirm('Logout?')) {
-        return false;
+            if (!confirm('Logout?')) {
+              return false;
+            }
+
+            await this.signOut();
+            login.classList.remove('authenticated');
+          }
+        });
       }
-
-      await this.signOut();
-      login.hidden = true;
     });
 
-    const admin = await this.isAdmin(true);
-    email.textContent = this.token.email + (admin ? ' (admin)' : '');
-    login.hidden = false;
+    if (this.token) {
+      login.classList.add('authenticated');
+      const admin = await this.isAdmin(true);
+      email.title = this.token.email + (admin ? ' (admin)' : '');
+    }
   }
 }
 
