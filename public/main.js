@@ -16,7 +16,7 @@
 
 import * as util from './util.mjs';
 import * as shared from './shared.mjs';
-import {renderPosts, container} from './render.mjs';
+import {renderPosts, container} from './render.js';
 import * as dbHelper from './firebaseHelper.mjs';
 
 dbHelper.setApp(firebase.initializeApp(shared.firebaseConfig));

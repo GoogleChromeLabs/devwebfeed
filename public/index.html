@@ -16,7 +16,7 @@
   <link rel="shortcut icon" href="img/firehose.png">
   <link rel="stylesheet" href="styles.css">
   <!-- https://developers.google.com/web/updates/2017/12/modulepreload -->
-  <link rel="modulepreload" href="render.mjs">
+  <link rel="modulepreload" href="render.js">
   <link rel="modulepreload" href="/lit-html/lit-html.js">
   <link rel="modulepreload" href="/lit-html/lib/repeat.js">
   <!-- <link rel="modulepreload" href="./shared.mjs">
@@ -78,9 +78,9 @@
 <!-- TODO: figure out why headless isn't liking the local node versions of these urls. -->
 <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/4.12.1/firebase-firestore.js"></script>
-<script type="module" src="app.js"></script>
+<script type="module" src="main.js"></script>
 <!-- Make client-side version work in Browsers that don't support ES modules. -->
-<script nomodule src="app.bundle.js"></script>
+<script nomodule src="main.bundle.js"></script>
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-114661299-1"></script>
 <script>
   window.dataLayer = window.dataLayer || [];

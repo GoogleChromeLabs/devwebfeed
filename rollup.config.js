@@ -29,10 +29,10 @@ const output = postcss([postCSSCustomVariables()]).process(css)
   .then(result => fs.writeFileSync('./public/styles.min.css', result.css));
 
 export default [{
-  input: 'public/app.js',
+  input: 'public/main.js',
   // treeshake: false,
   output: {
-    file: 'public/app.bundle.js',
+    file: 'public/main.bundle.js',
     name: 'app',
     format: 'iife',
   },

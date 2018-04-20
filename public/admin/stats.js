@@ -159,14 +159,18 @@ function renderTable(posts) {
       const url = new URL(item.url);
       return html`
         <tr>
-          <td>${i + 1}.</td>
-          <td class="overflow">
-            <a href="${item.url}" target="_blank"">${item.title || item.domain + url.pathname}</a>
+          <td><div class="oveflow" style="width:8px;">${i + 1}.</span></td>
+          <td>
+            <a href="${item.url}" target="_blank" class="post_url overflow">${item.title || item.domain + url.pathname}</a>
           </td>
-          <td class="post_domain overflow" onclick="filterBy('domain', '${item.domain}')">${item.domain}</td>
+          <td onclick="filterBy('domain', '${item.domain}')">
+            <div class="post_domain overflow">${item.domain}</div>
+          </td>
           <td>${renderAnalyticsData(item)}</td>
-          <td class="overflow clickable" onclick="filterBy('author', '${author}')">${author}</td>
-          <td class="overflow">${item.submitted.split('T')[0]}</td>
+          <td class="clickable" onclick="filterBy('author', '${author}')">
+            <div class="overflow post_author">${author}</div>
+          </td>
+          <td><div class="overflow">${item.submitted.split('T')[0]}</div></td>
         </tr>`;
     })}
   `;

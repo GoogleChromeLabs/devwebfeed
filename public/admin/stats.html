@@ -15,7 +15,7 @@
   <link rel="icon" sizes="192x192" href="img/firehose.png">
   <link rel="shortcut icon" href="/img/firehose.png">
   <link rel="stylesheet" href="/styles.css">
-  <link rel="modulepreload" href="/render.mjs">
+  <link rel="modulepreload" href="/render.js">
   <link rel="modulepreload" href="/lit-html/lit-html.js">
   <link rel="modulepreload" href="/lit-html/lib/repeat.js">
   <style>
@@ -23,8 +23,8 @@
       border-spacing: 0;
       border-collapse: collapse;
       width: 100%;
-      table-layout: fixed;
-      font-size: 14px;
+      /* table-layout: fixed; */
+      font-size: 12px;
     }
     table th {
       height: 55px;
@@ -55,6 +55,24 @@
     .post_domain {
       font-size: 12px;
     }
+    .post_url {
+      display: block;
+      width: 100px;
+    }
+    .post_domain {
+      width: 50px;
+    }
+    .post_author {
+      width: 100px;
+    }
+    @media screen and (min-width: 768px) {
+      .post_url{
+        width: 200px;
+      }
+      .post_domain {
+        width: 100px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -77,12 +95,12 @@
     <table>
       <thead>
         <tr>
-          <th style="width:20px;border-top-left-radius:5px;"></th>
-          <th style="width:340px;">URL</th>
-          <th style="width:100px">Domain</th>
-          <th style="width:65px;" id="views" class="sortable" onclick="sortByPageviews()">Views</th>
-          <th style="width:120px;">Author</th>
-          <th style="width:80px;border-top-right-radius:5px;" class="sortable" onclick="sortByDate()">Date</th>
+          <th style="border-top-left-radius:5px;"></th>
+          <th>URL</th>
+          <th>Domain</th>
+          <th id="views" class="sortable" onclick="sortByPageviews()">Views</th>
+          <th>Author</th>
+          <th style="border-top-right-radius:5px;" class="sortable" onclick="sortByDate()">Date</th>
         </tr>
         <tbody id="container">
           <tr>
