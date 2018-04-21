@@ -15,6 +15,7 @@
     "coverage": "URL=http://localhost:8080/ node --experimental-modules scripts/codecoverage.mjs && ./node_modules/nyc/bin/nyc.js report --reporter=html",
     "docker": "docker kill team-contributions; yarn build && docker run -dit -p 8080:8080 --rm --name team-contributions --cap-add=SYS_ADMIN team-contributions",
     "deploy": "npm run bundle && gcloud app deploy app.yaml --project devwebfeed",
+    "deploy2": "npm run bundle && gcloud app deploy app2.yaml --project devwebfeed",
     "deploy:cron": "gcloud app deploy cron.yaml --project devwebfeed"
   },
   "dependencies": {
