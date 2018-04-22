@@ -15,6 +15,7 @@
   --material-red-600: #E53935;
 
   --icon-size: 50px;
+  --profile-pic-size: 24px;
 }
 body {
   font-family: 'Google Sans', 'Product Sans', sans-serif;
@@ -105,6 +106,12 @@ header {
 
 #login.authenticated .login-email {
   display: initial;
+}
+
+.login-email img {
+  width: var(--profile-pic-size);
+  height:  var(--profile-pic-size);
+  border-radius: 50%;
 }
 
 .title a {
@@ -334,8 +341,8 @@ header h4 {
 }
 
 .profile_pic {
-  width: 24px;
-  height: 24px;
+  width: var(--profile-pic-size);
+  height: var(--profile-pic-size);
   border-radius: 50%;
   flex-shrink: 0;
 }
@@ -351,8 +358,8 @@ header h4 {
 .share_button {
   display: none;
   opacity: 0.6;
-  width: 24px;
-  height: 24px;
+  width: var(--profile-pic-size);
+  height: var(--profile-pic-size);
   background: url(img/share_24px.svg) no-repeat 50% 50%;
   background-size: 22px;
 }

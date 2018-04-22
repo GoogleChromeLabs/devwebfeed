@@ -161,6 +161,10 @@ class GSignIn {
     return firebase && firebase.auth ? firebase.auth().currentUser.uid : null;
   }
 
+  getProfilePic() {
+    return firebase && firebase.auth ? firebase.auth().currentUser.photoURL : null;
+  }
+
   getEmail() {
     if (!this.token) {
       return this.signIn();
@@ -211,9 +215,10 @@ class GSignIn {
     });
 
     if (this.token) {
-      login.classList.add('authenticated');
+      email.querySelector('img').src = this.getProfilePic();
       const admin = await this.isAdmin(true);
       email.title = this.token.email + (admin ? ' (admin)' : '');
+      login.classList.add('authenticated');
     }
   }
 }
