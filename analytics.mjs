@@ -218,7 +218,7 @@ async function updateAnalyticsData(clearCache = false) {
     return CACHE;
   }
 
-  console.info('Updating Analytics data...');
+  console.info('Updating Google Analytics data...');
   const tic = Date.now();
 
   await authClient.authorize();
@@ -249,7 +249,7 @@ async function updateAnalyticsData(clearCache = false) {
 
   CACHE = results;
 
-  console.info(`Analytics update took ${(Date.now() - tic)/1000}s`);
+  console.info(`Google Analytics update took ${(Date.now() - tic)/1000}s`);
 
   return results;
 }

@@ -33,6 +33,7 @@ import * as util from './public/util.mjs';
 import * as dbHelper from './public/firebaseHelper.mjs';
 import RSSFeed from './public/rss.mjs';
 import * as ga from './analytics.mjs';
+import * as ytAnalytics from './analytics-youtube.mjs';
 
 const PORT = process.env.PORT || 8080;
 const GA_ACCOUNT = 'UA-114661299-1';
@@ -79,6 +80,38 @@ async function getPosts(req, res) {
   const rssPosts = await feeds.collectRSSFeeds();
   const posts = util.uniquePosts(
       await dbHelper.getPosts(year, month, day, rssPosts, maxResults));
+
+  return posts;
+}
+
+async function addAnalyticsData(posts, uid) {
+  try {
+    const user = await firebaseAdmin.auth().getUser(uid);
+    if (user.customClaims.admin) {
+      const urlMap = await ga.updateAnalyticsData();
+      const ytVideoIdMap = await ytAnalytics.updateAnalyticsData();
+
+      const titleMap = new Map([
+        ...ga.Analytics.toTitleMap(urlMap),
+        ...ytAnalytics.YoutubeAnalytics.toTitleMap(ytVideoIdMap),
+      ]);
+
+      posts = posts.map(post => {
+        const urlMatch = urlMap.get(new URL(post.url).pathname);
+        const titleMatch = titleMap.get(post.title);
+        const match = urlMatch || titleMatch;
+        if (match) {
+          // Normalize between GA and YT properties.
+          const pageviews = match.pageviews || (match.statistics && match.statistics.viewCount);
+          return Object.assign({pageviews}, post);
+        }
+        return post;
+      });
+    }
+  } catch (err) {
+    console.error(err);
+    // Noop. Pass through posts without analytics data.
+  }
 
   return posts;
 }
@@ -170,6 +203,7 @@ app.get('/admin/update/analytics', async (req, res) => {
     return res.status(403).send('Sorry, handler runs from GAE cron.');
   }
   await ga.updateAnalyticsData(true);
+  await ytAnalytics.updateAnalyticsData(true);
   res.status(200).send('Done');
 });
 
@@ -240,21 +274,7 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
   }
 
   // Zest in analytics data if user is admin.
-  try {
-    const user = await firebaseAdmin.auth().getUser(req.query.uid);
-    if (user.customClaims.admin) {
-      const urlMap = await ga.updateAnalyticsData();
-      const titleMap = ga.Analytics.toTitleMap(urlMap);
-      posts = posts.map(post => {
-        const urlMatch = urlMap.get(new URL(post.url).pathname);
-        const titleMatch = titleMap.get(post.title);
-        const match = urlMatch || titleMatch;
-        return match ? Object.assign({pageviews: match.pageviews}, post) : post;
-      });
-    }
-  } catch (err) {
-    // Noop. Pass through posts without analytics data.
-  }
+  posts = await addAnalyticsData(posts, req.query.uid);
 
   // TODO: monitor updates to other years. e.g. If the server is running when
   // a new year occurs, it will need to be restarted to pick up updates to that
@@ -277,9 +297,11 @@ app.get('/posts/:year?/:month?/:day?', async (req, res) => {
 app.listen(PORT, async () => {
   console.log(`App listening on port ${PORT}`);
   console.log('Press Ctrl+C to quit.');
-  feeds.updateFeeds(); // initially populate feeds on server bootup.
+  // Initially populate caches on server bootup. In parallel.
+  feeds.updateFeeds();
   // twitter.updateTweets();
-  // await updateAnalyticsData();
+  ga.updateAnalyticsData();
+  ytAnalytics.updateAnalyticsData();
 });
 
 // Make sure node server process stops if we get a terminating signal.
