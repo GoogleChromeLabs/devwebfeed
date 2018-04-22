@@ -109,8 +109,8 @@ header {
 }
 
 .login-email img {
-  width: var(--profile-pic-size);
-  height:  var(--profile-pic-size);
+  width: calc(var(--profile-pic-size) + 12px);
+  height: calc(var(--profile-pic-size) + 12px);
   border-radius: 50%;
 }
 

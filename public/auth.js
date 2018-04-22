@@ -215,7 +215,10 @@ class GSignIn {
     });
 
     if (this.token) {
-      email.querySelector('img').src = this.getProfilePic();
+      const profilePic = this.getProfilePic();
+      if (profilePic) {
+        email.querySelector('img').src = profilePic;
+      }
       const admin = await this.isAdmin(true);
       email.title = this.token.email + (admin ? ' (admin)' : '');
       login.classList.add('authenticated');
