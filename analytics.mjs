@@ -113,7 +113,7 @@ class Analytics {
       viewId,
       dateRanges: [{startDate, endDate}],
       metrics: [{expression: 'ga:pageviews'}, {expression: 'ga:users'}],
-      pageSize: 100000, // 10k is supposed API max, but it can go up to 100k :)
+      pageSize: 100000,
       pageToken,
       metricFilterClauses: [{
         filters: [{
