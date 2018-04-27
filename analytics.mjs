@@ -71,7 +71,11 @@ const VIEW_IDS = {
     viewId: '67859993',
     pathRegexs: ['^/\\d{4}/\\d{2}/.+'],
     notPathRegexs: ['^/search/'],
-  }
+  },
+  jake: {
+    viewId: '72849163',
+    pathRegexs: ['^/\\d{4}/'],
+  },
 };
 
 // const creds = JSON.parse(fs.readFileSync('./google_oauth_credentials.json'));
