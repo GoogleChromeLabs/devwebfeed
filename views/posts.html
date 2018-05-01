@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block title %}Posts{% endblock %}
+
+{% block head %}
+<!-- https://developers.google.com/web/updates/2017/12/modulepreload -->
+<link rel="modulepreload" href="/render.js">
+<link rel="modulepreload" href="/lit-html/lit-html.js">
+<link rel="modulepreload" href="/lit-html/lib/repeat.js">
+<!-- <link rel="modulepreload" href="./shared.mjs">
+<link rel="modulepreload" href="./firebaseHelper.mjs">
+<link rel="modulepreload" href="util.mjs"> -->
+{% endblock %}
+
+{% block header %}
+<header>
+  <span id="login" class="layout center">
+    <a href="#" class="login-pic" title="Sign in"><img src="/img/user_24px.svg"></a>
+    <a href="#" class="login-email" title="Click here to sign out"><img src="/img/user-signed-in.svg"></a>
+  </span>
+  <hgroup>
+    <h1 class="title layout center-center"><a href="/">dev-web firehose</a></h1>
+    <h4 class="subtitle">articles, tutorials, <a href="?tweets">tweets</a>, code snippets</h4>
+    <div class="layout action-icons">
+      <a href="#" onclick="return toggleHelp()" class="layout">
+        <img src="img/help_24px.svg" height="18" width="18" class="helpicon" title="Help" alt="Help">
+      </a>
+      <a href="https://github.com/ebidel/devwebfeed" target="_blank" class="layout">
+        <img src="img/github.svg" width="18" height="18" title="Github source" alt="Github source">
+      </a>
+      <a href="https://devwebfeed.appspot.com/posts/?format=rss" target="_blank" class="layout">
+        <img src="/img/rss_icon_24px.svg" width="18" height="18" class="rssicon"  title="Subscribe to RSS feed" alt="Subscribe to RSS feed">
+      </a>
+    </div>
+  </hgroup>
+  <div id="filtering" class="layout center-center" hidden>
+    <span>Filtering posts by "<span class="filtering-needle"></span>".</span>
+    <a href="#" class="filtering-clear" onclick="return clearFilters()"><img src="img/clear_white_24px.svg"></a>
+  </div>
+</header>
+{% endblock %}
+
+{% block aside %}
+<aside id="help">
+  <div class="help-content">
+    <span class="layout center">
+      <a href="#" class="help-close layout" onclick="return toggleHelp()">
+        <img src="img/clear_white_24px.svg" width="18" height="18">
+      </a>
+      <b>Instructions</b>
+    </span>
+    <ul>
+      <!-- <li>Keep this page open! Posts show up in real-time as they're added.</li> -->
+      <li>Posts are sorted by added date. Not necessarily when they were published.</li>
+      <li>Clicking a <a href="?author=Paul+Kinlan">name</a> or <a href="?domain=medium.com">domain</a> filters the list.</li>
+      <li>Click <a href="?tweets">here</a> to include Tweets.</li>
+      <li>If you have access, user-added posts can be removed by logging in at the top of the page. When you come back from the oauth flow, click the remove icon next to the post that you want to remove.</li>
+    </ul>
+  </div>
+</aside>
+{% endblock %}
+
+{% block content %}
+<div id="container">
+  <div class="progress">
+    <div class="indeterminate"></div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-firestore.js"></script>
+<script type="module" src="main.js"></script>
+<!-- Make client-side version work in Browsers that don't support ES modules. -->
+<script nomodule src="main.bundle.js"></script>
+{% endblock %}

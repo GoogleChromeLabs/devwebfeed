@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}Charts{% endblock %}
+
+{% block head %}
+<link rel="modulepreload" href="../../util.mjs">
+<link rel="modulepreload" href="./admin.js">
+{% endblock %}
+
+{% block header %}
+  {% include "./header.html" %}
+{% endblock %}
+
+{% block content %}
+<div class="layout">
+  <div id="chart-author-views" style="width:100%;height:400px;"></div>
+  <div id="chart-domain-views" style="width:100%;height:400px;"></div>
+</div>
+<div id="chart-author-posts" style="width:100%;height:400px;"></div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script type="module">
+(async() => {
+const util = await import('../../util.mjs');
+const admin = await import('./admin.js');
+
+function postsByAuthor(posts, year) {
+  const authorToPostsMap = new Map();
+  posts.forEach(post => {
+    const blacklist = ['d.g.c', 'Chrome Blog'];
+    if (!post.author || !post.author.length || blacklist.includes(post.author)) {
+      return;
+    }
+    if (!authorToPostsMap.has(post.author)) {
+      authorToPostsMap.set(post.author, []);
+    }
+    authorToPostsMap.get(post.author).push(post);
+  });
+  return authorToPostsMap;
+}
+
+function postsByDomain(posts, year) {
+  const authorToPostsMap = new Map();
+  posts.forEach(post => {
+    // const blacklist = ['d.g.c', 'Chrome Blog', 'the V8 team'];
+    if (!post.domain || !post.domain.length) {
+      return;
+    }
+    if (!authorToPostsMap.has(post.domain)) {
+      authorToPostsMap.set(post.domain, []);
+    }
+    authorToPostsMap.get(post.domain).push(post);
+  });
+  return authorToPostsMap;
+}
+
+const DEFAULT_PIECHART_OPTS = {
+  // title: `Posts by author (${year})`,
+  pieHole: 0.4,
+  // is3D: true,
+  titleTextStyle: {
+    fontName: "'Google Sans', 'Product Sans', sans-serif",
+    fontSize: '18',
+    bold: false,
+    color: '#37474F', // md blue grey 800
+  },
+  // chartArea: {left: 0},
+  sliceVisibilityThreshold: 0.5/100,
+  pieResidueSliceLabel: 'Other',
+  // pieResidueSliceColor: '#fff',
+};
+
+function drawChart({title, selector, data, labels}) {
+  const chart = new google.visualization.PieChart(document.querySelector(selector));
+  const dataTable = google.visualization.arrayToDataTable([labels, ...data]);
+  chart.draw(dataTable, Object.assign({title}, DEFAULT_PIECHART_OPTS));
+}
+
+google.charts.load('current', {packages: ['corechart']});
+// google.charts.setOnLoadCallback(drawChart);
+
+let params = new URL(location.href).searchParams;
+const year = params.get('year') || util.currentYear;
+
+const uid = await admin.initAuth(); // Check user's auth state.
+
+const posts = await Promise.all([
+  admin.getPosts(year, uid),
+  // admin.getPosts(year - 1, uid),
+  // admin.getPosts(year - 2, uid),
+]).then(results => {
+  const posts = util.flatten(results).filter(post => post.pageviews);
+  util.sortPostsByDate(posts);
+  return posts;
+});
+
+const postsByAuthorData = Array.from(postsByAuthor(posts));
+
+drawChart({
+  title: `${year} Posts by author`,
+  labels: ['Author', '# posts'],
+  data: postsByAuthorData.map(([name, urls]) => [name, urls.length]),
+  selector: '#chart-author-posts',
+});
+
+drawChart({
+  title: `${year} Pageviews by author`,
+  labels: ['Author', '# posts'],
+  data: postsByAuthorData.map(([name, posts]) => {
+    return [name, posts.reduce((accum, post) => accum + post.pageviews, 0)];
+  }),
+  selector: '#chart-author-views',
+});
+
+drawChart({
+  title: `${year} Pageviews by domain`,
+  labels: ['Domain', 'Pageviews'],
+  data: Array.from(postsByDomain(posts)).map(([domain, posts]) => {
+    return [domain, posts.reduce((accum, post) => accum + post.pageviews, 0)]
+  }),
+  selector: '#chart-domain-views',
+});
+
+})();
+</script>
+{% endblock %}

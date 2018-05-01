@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>dev-web firehose: {% block title %}{% endblock %}</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#37474F">
+  <meta name="description" content="Developer resource from Google Web DevRel and from around the web.">
+  <meta name="keywords" content="HTML,CSS,JavaScript,web,PWA,tutorials,code,tweets">
+  <meta name="author" content="Eric Bidelman">
+  <meta name="google-site-verification" content="j4g2UAPd-Fnxh2o_daravb8lvXwZuatJt5kVSbdM0Fc" />
+  <link rel="alternate" type="application/rss+xml" href="https://devwebfeed.appspot.com/posts/?format=rss" title="DevWeb Firehose RSS feed">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/img/firehose.png">
+  <link rel="icon" sizes="192x192" href="/img/firehose.png">
+  <link rel="shortcut icon" href="/img/firehose.png">
+  <link rel="stylesheet" href="/styles.css">
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+{% block aside %}{% endblock%}
+
+<main>
+  {% block header %}{% endblock %}
+  {% block content %}{% endblock %}
+</main>
+
+<!-- TODO: use import() when Firebase supports modules -->
+<!-- TODO: figure out why headless isn't liking the local node versions of these urls. -->
+<script src="https://www.gstatic.com/firebasejs/4.13.0/firebase-app.js"></script>
+
+{% block scripts %}{% endblock %}
+
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-114661299-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'UA-114661299-1');
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js')
+      .then(reg => console.log('SW registered!'))
+      .catch(err => console.error('Boo!', err));
+  }
+</script>
+</body>
+</html>

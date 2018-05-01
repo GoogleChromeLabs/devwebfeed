@@ -14,39 +14,19 @@
  * limitations under the License.
  */
 
+import * as admin from './admin.js';
 import * as util from '../../util.mjs';
-import {firebaseConfig} from '../../shared.mjs';
 import {html, render} from '../../lit-html/lit-html.js';
 import {repeat} from '../../lit-html/lib/repeat.js';
-
-firebase.initializeApp(firebaseConfig);
 
 let _posts = [];
 let filteredPosts = [];
 let _filteringBy = null;
 const ORDER = {desc: 0, asc: 1};
 let _sortingBy = ORDER.desc;
-let auth;
 
 const container = document.querySelector('#container');
 const views = document.querySelector('#views');
-
-async function fetchPosts(url, maxResults = null) {
-  try {
-    url = new URL(url, location);
-    if (maxResults) {
-      url.searchParams.set('maxresults', maxResults);
-    }
-    const resp = await fetch(url.href);
-    const json = await resp.json();
-    if (!resp.ok || json.error) {
-      throw Error(json.error);
-    }
-    return json;
-  } catch (err) {
-    throw err;
-  }
-}
 
 function sortByPageviews() {
   const posts = filteredPosts.length ? filteredPosts : _posts;
@@ -119,27 +99,6 @@ function clearFilters() {
   return false;
 }
 
-async function getPosts(forYear, uid = null) {
-  const url = new URL(`/posts/${forYear}`, location);
-  if (uid) {
-    url.searchParams.set('uid', uid);
-  }
-  const posts = await fetchPosts(url.href);
-
-  // Ensure list of rendered posts is unique based on URL.
-  return util.uniquePosts(posts);
-}
-
-async function initAuth() {
-  const {GSignIn} = await import('../../auth.js');
-  auth = new GSignIn();
-
-  const uid = await auth.init();
-  const token = await auth.authenticated();
-
-  return uid;
-}
-
 function renderAnalyticsData(post) {
   if (!post.pageviews) {
     return '';
@@ -185,17 +144,17 @@ function renderTable(posts) {
   let params = new URL(location.href).searchParams;
   const year = params.get('year') || util.currentYear;
 
-  const uid = await initAuth(); // Check user's auth state.
+  const uid = await admin.initAuth(); // Check user's auth state.
 
   _posts = await Promise.all([
-    getPosts(year, uid),
-    getPosts(year - 1, uid),
-    getPosts(year - 2, uid),
+    admin.getPosts(year, uid),
+    admin.getPosts(year - 1, uid),
+    admin.getPosts(year - 2, uid),
   ]).then(results => {
     const posts = util.flatten(results).filter(post => post.pageviews);
     util.sortPostsByDate(posts);
     return posts;
-  })
+  });
 
   renderTable(_posts);
 
