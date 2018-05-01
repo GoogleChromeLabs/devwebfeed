@@ -161,8 +161,14 @@ class GSignIn {
     return firebase && firebase.auth ? firebase.auth().currentUser.uid : null;
   }
 
-  getProfilePic() {
-    return firebase && firebase.auth ? firebase.auth().currentUser.photoURL : null;
+  getProfilePic(size = 72) {
+    let url = firebase && firebase.auth ? firebase.auth().currentUser.photoURL : null;
+    if (url) {
+      const parts = url.split('/');
+      parts.splice(parts.length - 1, 0, `s${size}-c`)
+      url = parts.join('/');
+    }
+    return url;
   }
 
   getEmail() {
