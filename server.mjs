@@ -24,6 +24,7 @@ const URL = url.URL;
 import express from 'express';
 import firebaseAdmin from 'firebase-admin';
 import puppeteer from 'puppeteer';
+import nunjucks from 'nunjucks';
 import GoogleAnalytics from 'universal-analytics';
 
 import * as prerender from './ssr.mjs';
@@ -85,6 +86,10 @@ async function getPosts(req, res) {
 }
 
 async function addAnalyticsData(posts, uid) {
+  if (!uid) {
+    return posts;
+  }
+
   try {
     const user = await firebaseAdmin.auth().getUser(uid);
     if (user.customClaims.admin) {
@@ -123,6 +128,11 @@ dbHelper.setApp(firebaseAdmin.initializeApp({
 }));
 
 const app = express();
+nunjucks.configure(['./views'], {
+  autoescape: true,
+  express: app,
+  watch: process.env.DEV || false,
+});
 
 app.use(function forceSSL(req, res, next) {
   const fromCron = req.get('X-Appengine-Cron');
@@ -151,12 +161,13 @@ app.use(bodyParser.json());
 app.get('/', async (req, res, next) => {
   // Serve prerendered page to search crawlers.
   const ua = req.get('User-Agent');
-  if (ua && ua.match(/googlebot|bingbot/i)) {
-    const html = await doSSR(`${req.getOrigin()}/index.html`, req);
+  if (ua && (ua.match(/googlebot|bingbot/i) && !ua.match(/HeadlessChrome/i))) {
+    const html = await doSSR(req.getOrigin(), req);
     // res.append('Link', `<${url}/styles.css>; rel=preload; as=style`); // Push styles.
     return res.status(200).send(html);
   }
-  next();
+
+  return res.render('./posts.html');//, {title: 'Posts'});
 });
 
 
@@ -171,6 +182,14 @@ app.use(express.static('node_modules'));
 // });
 
 // Admin handlers --------------------------------------------------------------
+app.get('/admin/charts', async (req, res) => {
+  res.render('./admin/charts.html');
+});
+
+app.get('/admin/stats', async (req, res) => {
+  res.render('./admin/stats.html');
+});
+
 app.post('/admin/user/update/:uid', async (req, res) => {
   const uid = req.params.uid;
   if (!uid) {
@@ -237,7 +256,7 @@ app.get('/admin/update/rendercache', async (req, res) => {
 //   FP/FCP: 2.3s, 8.37s faster!
 app.get('/ssr', catchAsyncErrors(async (req, res) => {
   const tic = Date.now();
-  const html = await doSSR(`${req.getOrigin()}/index.html`, req);
+  const html = await doSSR(req.getOrigin(), req);
   res.set('Server-Timing', `Prerender;dur=${Date.now() - tic};desc="Headless render time (ms)"`);
   res.status(200).send(html);
 }));

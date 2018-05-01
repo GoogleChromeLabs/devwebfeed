@@ -34,11 +34,11 @@ yarn build
 Serve it:
 
 ```
-yarn start
+yarn start-dev
 ```
 
 Navigate to http://localhost:8080/. The page will update in realtime as people
-add posts.
+add posts. The `start-dev` script will reload nunjucks as changes are made.
 
 Navigate to http://localhost:8080/ssr will server the server-side rendered version of the app
 using headless Chrome.

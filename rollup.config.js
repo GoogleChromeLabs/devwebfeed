@@ -23,10 +23,10 @@ import cssnano from 'cssnano';
 import postCSSCustomVariables from 'postcss-css-variables';
 
 // Minify css. Google search runs Chrome 41, which doesn't support CSS custom properties :(
-const css = fs.readFileSync('./public/styles.css', 'utf8');
+const css = fs.readFileSync('./public/css/styles.css', 'utf8');
 const output = postcss([postCSSCustomVariables()]).process(css)
   .then(result => cssnano.process(result.css))
-  .then(result => fs.writeFileSync('./public/styles.min.css', result.css));
+  .then(result => fs.writeFileSync('./public/css/styles.min.css', result.css));
 
 export default [{
   input: 'public/main.js',

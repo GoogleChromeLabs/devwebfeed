@@ -12,6 +12,9 @@
 {% endblock %}
 
 {% block content %}
+<div class="progress">
+  <div class="indeterminate"></div>
+</div>
 <div class="layout">
   <div id="chart-author-views" style="width:100%;height:400px;"></div>
   <div id="chart-domain-views" style="width:100%;height:400px;"></div>
@@ -122,6 +125,8 @@ drawChart({
   }),
   selector: '#chart-domain-views',
 });
+
+document.querySelector('.progress').remove();
 
 })();
 </script>

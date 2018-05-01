@@ -395,7 +395,7 @@ header h4 {
   }
   main::before {
     content: '';
-    background: url(img/firehose.png) no-repeat 50% 50%;
+    background: url(/img/firehose.png) no-repeat 50% 50%;
     background-size: var(--icon-size);
     background-blend-mode: luminosity;
     background-color: var(--material-blue-grey-800);

@@ -5,7 +5,7 @@ node_modules
 *-error.log
 *.pem
 public/**/*.bundle.js
-public/styles.min.css
+public/**/*.min.css
 
 # Instanbul
 .nyc_output
