@@ -350,7 +350,7 @@ header h4 {
 .remove_button {
   width: 25px;
   height: 25px;
-  background: url(img/remove_icon_24px.svg) no-repeat 50% 50%;
+  background: url(/img/remove_icon_24px.svg) no-repeat 50% 50%;
   background-size: 28px;
   display: none;
 }
@@ -360,7 +360,7 @@ header h4 {
   opacity: 0.6;
   width: var(--profile-pic-size);
   height: var(--profile-pic-size);
-  background: url(img/share_24px.svg) no-repeat 50% 50%;
+  background: url(/img/share_24px.svg) no-repeat 50% 50%;
   background-size: 22px;
 }
 

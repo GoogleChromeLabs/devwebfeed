@@ -107,7 +107,7 @@ async function ssr(url, {useCache = true, onlyCriticalRequests = true,
         return req.respond({
           status: 200,
           contentType: 'text/css',
-          body: fs.readFileSync('./public/styles.min.css', 'utf-8'),
+          body: fs.readFileSync('./public/css/styles.min.css', 'utf-8'),
         });
       }
     }
