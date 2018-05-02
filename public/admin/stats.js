@@ -81,7 +81,7 @@ function filterBy(key, needle = null) {
     params.delete(key);
     _filteringBy = null;
   } else {
-    filteredPosts = filteredPosts.filter(post => post[key] === needle);
+    filteredPosts = filteredPosts.filter(post => post[key] && post[key].match(needle));
     params.set(key, needle);
     needleEl.textContent = needle;
     _filteringBy = needle;

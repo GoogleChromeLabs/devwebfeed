@@ -60,6 +60,7 @@ export const FEEDS = [
   'https://meowni.ca/atom.xml',
   'https://dassur.ma/index.xml',
   'https://jasonformat.com/rss/',
+  'https://jeffy.info/feed.xml',
 
   // Github releases.
   'https://github.com/googlechrome/lighthouse/releases.atom',
@@ -86,8 +87,22 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: '@samthor', author: 'Sam Thorogood', github: 'samthor'},
   {urlMatcher: 'meowni.ca', author: 'Monica Dinculescu'},
   {urlMatcher: 'dassur.ma', author: 'Surma', github: 'surma'},
-  {urlMatcher: 'github.com/GoogleChromeLabs/', author: 'Google Chrome Labs', twitter: 'ChromiumDev', gitub: 'GoogleChromeLabs'},
-  {urlMatcher: 'github.com/GoogleChrome/', author: 'Google Chrome', twitter: 'ChromiumDev', gitub: 'GoogleChrome'},
+  {urlMatcher: 'github.com/GoogleChromeLabs/', author: 'Google Chrome Labs', twitter: 'ChromiumDev', github: 'GoogleChromeLabs'},
+  {urlMatcher: 'github.com/GoogleChrome/', author: 'Google Chrome', twitter: 'ChromiumDev', github: 'GoogleChrome'},
   {urlMatcher: 'medium.com/feed/dev-channel', author: 'Google Chrome', twitter: 'ChromiumDev'},
   {urlMatcher: 'jasonformat.com', author: 'Jason Miller', twitter: '_developit'},
+  {urlMatcher: 'jeffy.info', author: 'Jeff Posnick', twitter: 'jeffposnick', github: 'jeffposnick'},
+];
+
+export const YOUTUBE_TO_AUTHOR = [
+  {titleMatcher: 'HTTP203', author: 'Surma, Jake Archibald'}, // TODO: handle multiple creators.
+  {titleMatcher: 'Supercharged', author: 'Surma'},
+  {titleMatcher: 'Polycasts', author: 'Rob Dodson'},
+  {titleMatcher: 'A11ycasts', author: 'Rob Dodson'},
+  {titleMatcher: 'New in Chrome', author: 'Pete LePage'},
+  {titleMatcher: 'New in DevTools', author: 'Kayce Basques'},
+  {titleMatcher: 'The Standard', author: 'Sam Thorogood'},
+  {titleMatcher: 'Totally Tooling Tips', author: 'Addy Osmani'},
+  {titleMatcher: 'Designer vs', author: 'Mustafa Kurtuldu'},
+  {titleMatcher: 'State of the Web', author: 'Rick Viscomi'},
 ];

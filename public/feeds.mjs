@@ -19,7 +19,7 @@
 import url from 'url';
 const URL = url.URL;
 import RssParser from 'rss-parser';
-import {BLOG_TO_AUTHOR, FEEDS} from './shared.mjs';
+import {BLOG_TO_AUTHOR, YOUTUBE_TO_AUTHOR, FEEDS} from './shared.mjs';
 
 let FEEDS_CACHE = [];
 
@@ -95,6 +95,14 @@ async function updateFeeds() {
         if (postedBy) {
           const by = postedBy[1].replace(/<\/?[^>]+(>|$)/g, '').split(',')[0];
           author = by;
+        }
+      }
+
+      // Try find YT video author by matching title of show with its creator.
+      if (!author) {
+        const ytAuthor = YOUTUBE_TO_AUTHOR.find((item, i) => post.title.match(item.titleMatcher));
+        if (ytAuthor) {
+          author = ytAuthor.author;
         }
       }
 
