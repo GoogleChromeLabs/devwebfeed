@@ -90,4 +90,5 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'github.com/GoogleChrome/', author: 'Google Chrome', twitter: 'ChromiumDev', gitub: 'GoogleChrome'},
   {urlMatcher: 'medium.com/feed/dev-channel', author: 'Google Chrome', twitter: 'ChromiumDev'},
   {urlMatcher: 'jasonformat.com', author: 'Jason Miller', twitter: '_developit'},
+  {urlMatcher: 'blog.tomayac.com', author: 'Thomas Steiner', twitter: 'tomayac', github: 'tomayac'},
 ];
