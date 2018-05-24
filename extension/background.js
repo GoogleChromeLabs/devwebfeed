@@ -43,7 +43,7 @@ chrome.browserAction.onClicked.addListener(async tab => {
 function getCanonicalLink(tab) {
   return new Promise(resolve => {
     const code = `
-      const canonical = document.querySelector('link[rel=canonical]');
+      var canonical = document.querySelector('link[rel=canonical]');
       canonical && canonical.href;
     `;
     chrome.tabs.executeScript(tab.id, {code}, results => resolve(results[0] || tab.url));
@@ -52,9 +52,11 @@ function getCanonicalLink(tab) {
 
 function getPageTitle(tab) {
   return new Promise(resolve => {
-    chrome.tabs.executeScript(tab.id, {
-      code: 'document.title || null;'
-    }, result => {
+    const code = `
+      var metaTwitterTitle = document.querySelector('meta[name="twitter:title"]');
+      document.title || (metaTwitterTitle && metaTwitterTitle.content) || null;
+    `;
+    chrome.tabs.executeScript(tab.id, {code}, result => {
       let title = result[0];
       // Cleanup Twitter titles.
       const m = title.match(/^.*on Twitter: "(.*)"/i);
