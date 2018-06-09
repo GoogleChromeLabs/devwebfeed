@@ -75,7 +75,7 @@ class GSignIn {
     }
 
     const credential = firebase.auth.GoogleAuthProvider.credential(null, accessToken);
-    await firebase.auth().signInWithCredential(credential);
+    await firebase.auth().signInAndRetrieveDataWithCredential(credential);
 
     // TODO: This re-POSTs to server on every page refresh if user is not admin.
     const admin = await this.isAdmin();

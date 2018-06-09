@@ -70,6 +70,7 @@ class YoutubeAnalytics {
    * Gets all items from a playlist. If playlist spans across multiple pages,
    * makes additional requests until there are no more pages to fetch.
    * @param {string} playlistId Playlist id.
+   * @return {!Array<string>} List of all video ids in the playlist
    */
   async getAllPlaylistItemsFor(playlistId) {
     const videoIds = [];

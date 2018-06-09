@@ -40,7 +40,7 @@ yarn start-dev
 Navigate to http://localhost:8080/. The page will update in realtime as people
 add posts. The `start-dev` script will reload nunjucks as changes are made.
 
-Navigate to http://localhost:8080/ssr will server the server-side rendered version of the app
+Navigate to http://localhost:8080/ssr will serve the server-side rendered version of the app
 using headless Chrome.
 
 Signing in (top of the page) allows admins to remove posts submitted by humans (not bot posts like

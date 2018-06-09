@@ -38,10 +38,10 @@ export const FEEDS = [
     `https://developers.google.com/web/updates/${year}/rss.xml`,
     `https://developers.google.com/web/fundamentals/${year}/rss.xml`,
     `https://developers.google.com/web/tools/${year}/rss.xml`,
-    `https://developers.google.com/web/showcase/${year}/rss.xml`
+    `https://developers.google.com/web/showcase/${year}/rss.xml`,
+    `https://developers.google.com/web/shows/${year}/rss.xml`,
   ])),
   // Note: These don't have per-year feeds and only return the latest items.
-  'https://developers.google.com/web/shows/rss.xml',
   'https://medium.com/feed/dev-channel',
   'https://blog.chromium.org/rss.xml',
   'https://v8project.blogspot.com/feeds/posts/default?alt=rss',
