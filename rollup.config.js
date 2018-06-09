@@ -17,7 +17,7 @@
 import fs from 'fs';
 import includePaths from 'rollup-plugin-includepaths';
 import filesize from 'rollup-plugin-filesize';
-import uglify from 'rollup-plugin-uglify';
+import {terser} from 'rollup-plugin-terser';
 import postcss from 'postcss';
 import cssnano from 'cssnano';
 import postCSSCustomVariables from 'postcss-css-variables';
@@ -33,16 +33,18 @@ export default [{
   // treeshake: false,
   output: {
     file: 'public/main.bundle.js',
+    // dir: './dist',
     name: 'app',
-    format: 'iife',
+    format: 'es',
   },
-  experimentalDynamicImport: true,
+  // experimentalDynamicImport: true,
+  inlineDynamicImports: true,
   plugins: [
     includePaths({
       paths: ['node_modules'],
       extensions: ['.js']
     }),
-    uglify(),
+    terser(),
     filesize()
   ],
 }];

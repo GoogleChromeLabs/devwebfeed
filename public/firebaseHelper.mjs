@@ -164,7 +164,7 @@ function monitorRealtimeUpdateToPosts(year, callback) {
       return;
     }
 
-    callback(snapshot.docChanges);
+    callback(snapshot.docChanges());
   });
 }
 

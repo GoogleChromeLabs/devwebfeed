@@ -3,14 +3,14 @@ import {firebaseConfig} from '../../shared.mjs';
 
 firebase.initializeApp(firebaseConfig);
 
-let auth;
+let gsignin;
 
 async function initAuth() {
   const {GSignIn} = await import('../../auth.js');
-  auth = new GSignIn();
+  gsignin = new GSignIn();
 
-  const uid = await auth.init();
-  const token = await auth.authenticated();
+  const uid = await gsignin.init();
+  const token = await gsignin.authenticated();
 
   return uid;
 }

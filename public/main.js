@@ -23,7 +23,7 @@ dbHelper.setApp(firebase.initializeApp(shared.firebaseConfig));
 
 let _posts = [];
 let _filteringBy = null;
-let auth;
+let gsignin;
 
 async function fetchPosts(url, maxResults = null) {
   try {
@@ -47,7 +47,7 @@ function handleDelete(el, dateStr, url) {
     return false;
   }
 
-  auth.authenticated().then(token => {
+  gsignin.authenticated().then(token => {
     const date = new Date(dateStr);
     dateStr = date.toJSON();
     const [year, month, day] = dateStr.split('-');
@@ -213,9 +213,9 @@ async function getPosts(forYear, includeTweets = false, uid = null) {
 
 async function initAuth() {
   const {GSignIn} = await import('./auth.js');
-  auth = new GSignIn();
+  gsignin = new GSignIn();
 
-  const uid = await auth.init();
+  const uid = await gsignin.init();
   if (uid) {
     container.classList.add('edit');
   }
