@@ -3749,9 +3749,9 @@ rollup-plugin-terser@^1.0.1:
     "@babel/code-frame" "^7.0.0-beta.47"
     terser "^3.7.5"
 
-rollup@^0.60.1:
-  version "0.60.1"
-  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.60.1.tgz#07cb66153f1541d5f7e82b8393b405c31647dae9"
+rollup@^0.60.2:
+  version "0.60.2"
+  resolved "https://registry.yarnpkg.com/rollup/-/rollup-0.60.2.tgz#9635fea3c2f32095c35cda7bfc2816c675de2da4"
   dependencies:
     "@types/estree" "0.0.39"
     "@types/node" "*"

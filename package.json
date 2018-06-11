@@ -39,7 +39,7 @@
     "postcss": "^6.0.22",
     "postcss-css-variables": "^0.8.0",
     "puppeteer-to-istanbul": "^1.2.2",
-    "rollup": "^0.60.1",
+    "rollup": "^0.60.2",
     "rollup-plugin-filesize": "^2.0.0",
     "rollup-plugin-includepaths": "^0.2.2",
     "rollup-plugin-terser": "^1.0.1"
