@@ -61,6 +61,11 @@ export const FEEDS = [
   'https://dassur.ma/index.xml',
   'https://jasonformat.com/rss/',
   'https://jeffy.info/feed.xml',
+  'https://alankent.me/feed/',
+  'https://medinathoughts.com/feed/',
+  'https://www.igvita.com/feed/',
+  'https://paulbakaus.com/feed/',
+  'https://blog.tomayac.com/atom.php',
 
   // Github releases.
   'https://github.com/googlechrome/lighthouse/releases.atom',
@@ -92,6 +97,11 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'medium.com/feed/dev-channel', author: 'Google Chrome', twitter: 'ChromiumDev'},
   {urlMatcher: 'jasonformat.com', author: 'Jason Miller', twitter: '_developit'},
   {urlMatcher: 'jeffy.info', author: 'Jeff Posnick', twitter: 'jeffposnick', github: 'jeffposnick'},
+  {urlMatcher: 'blog.tomayac.com', author: 'Thomas Steiner', twitter: 'tomayac', github: 'tomayac'},
+  {urlMatcher: 'alankent.me', author: 'Alan Kent', twitter: 'akent99'},
+  {urlMatcher: 'medinathoughts.com', author: 'Alberto Medina', twitter: 'iAlbMedina'},
+  {urlMatcher: 'igvita.com', author: 'Ilya Grigorik', twitter: 'igrigorik', github: 'igrigorik'},
+  {urlMatcher: 'paulbakaus.com', author: 'Paul Bakaus', twitter: 'pbakaus', github: 'pbakaus'}
 ];
 
 export const YOUTUBE_TO_AUTHOR = [
