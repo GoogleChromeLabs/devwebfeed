@@ -100,7 +100,8 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'alankent.me', author: 'Alan Kent', twitter: 'akent99'},
   {urlMatcher: 'medinathoughts.com', author: 'Alberto Medina', twitter: 'iAlbMedina'},
   {urlMatcher: 'igvita.com', author: 'Ilya Grigorik', twitter: 'igrigorik', github: 'igrigorik'},
-  {urlMatcher: 'paulbakaus.com', author: 'Paul Bakaus', twitter: 'pbakaus', github: 'pbakaus'}
+  {urlMatcher: 'paulbakaus.com', author: 'Paul Bakaus', twitter: 'pbakaus', github: 'pbakaus'},
+  {urlMatcher: 'rowan_m', author: 'Rowan Merewood', twitter: 'rowan_m', github: 'rowan-m'}
 ];
 
 export const YOUTUBE_TO_AUTHOR = [
