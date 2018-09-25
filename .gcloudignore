@@ -15,3 +15,9 @@
 
 # Node.js dependencies:
 node_modules/
+
+# Everything else:
+extension/
+tests/
+.*.sh
+.*.md
