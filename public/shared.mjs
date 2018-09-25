@@ -44,7 +44,7 @@ export const FEEDS = [
   // Note: These don't have per-year feeds and only return the latest items.
   'https://medium.com/feed/dev-channel',
   'https://blog.chromium.org/rss.xml',
-  'https://v8project.blogspot.com/feeds/posts/default?alt=rss',
+  'https://v8.dev/blog.atom',
 
   // Personal blogs.
   'https://philipwalton.com/atom.xml',
