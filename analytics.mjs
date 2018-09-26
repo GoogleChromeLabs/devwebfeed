@@ -58,7 +58,7 @@ const VIEW_IDS = {
   },
   v8: {
     viewId: '106306348',
-    pathRegexs: ['^/\\d{4}/\\d{2}/.*.html'],
+    pathRegexs: ['^/blog/'],
   },
   // googledevsyoutube: {
   //   viewId: '75881725',
