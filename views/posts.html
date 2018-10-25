@@ -6,7 +6,7 @@
 <!-- https://developers.google.com/web/updates/2017/12/modulepreload -->
 <link rel="modulepreload" href="/render.js">
 <link rel="modulepreload" href="/lit-html/lit-html.js">
-<link rel="modulepreload" href="/lit-html/lib/repeat.js">
+<link rel="modulepreload" href="/lit-html/directives/repeat.js">
 <!-- <link rel="modulepreload" href="./shared.mjs">
 <link rel="modulepreload" href="./firebaseHelper.mjs">
 <link rel="modulepreload" href="util.mjs"> -->
@@ -69,7 +69,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://www.gstatic.com/firebasejs/5.3.0/firebase-firestore.js"></script>
+<script src="https://www.gstatic.com/firebasejs/5.5.5/firebase-firestore.js"></script>
 <script type="module" src="main.js"></script>
 <!-- Make client-side version work in Browsers that don't support ES modules. -->
 <script nomodule src="main.bundle.js"></script>

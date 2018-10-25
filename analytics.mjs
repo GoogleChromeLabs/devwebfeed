@@ -210,12 +210,9 @@ class Analytics {
   }
 }
 
-let authClient = google.auth.fromJSON(JSON.parse(
+const authClient = google.auth.fromJSON(JSON.parse(
     fs.readFileSync('./analyticsServiceAccountKey.json')));
-// authClient.scopes = Analytics.SCOPES;
-if (authClient.createScopedRequired && authClient.createScopedRequired()) {
-  authClient = authClient.createScoped(Analytics.SCOPES);
-}
+authClient.scopes = Analytics.SCOPES;
 
 /**
  * @param {boolean=} clearCache Whether to clear the cache. True by default.

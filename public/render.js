@@ -15,7 +15,7 @@
  */
 
 import {html, render} from './lit-html/lit-html.js';
-import {repeat} from './lit-html/lib/repeat.js';
+import {repeat} from './lit-html/directives/repeat.js';
 import * as util from './util.mjs';
 
 const container = document.querySelector('#container');

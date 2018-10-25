@@ -17,7 +17,7 @@
 import * as admin from './admin.js';
 import * as util from '../../util.mjs';
 import {html, render} from '../../lit-html/lit-html.js';
-import {repeat} from '../../lit-html/lib/repeat.js';
+import {repeat} from '../../lit-html/directives/repeat.js';
 
 let _posts = [];
 let filteredPosts = [];
