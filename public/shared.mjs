@@ -27,7 +27,7 @@ export const firebaseConfig = {
   messagingSenderId: "1067674167387"
 };
 
-// Note: Prefer RSS feeds work best because atom feeds can have <updated> which the
+// Note: Prefer RSS feeds over atom. Atom feeds can have <updated> which the
 // rss-parser npm package treats as a pub date  :(
 export const FEEDS = [
   // Team articles, updates, and blogs.
