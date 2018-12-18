@@ -6,7 +6,6 @@
 <link rel="stylesheet" href="/admin/css/stats.css">
 <link rel="modulepreload" href="/lit-html/lit-html.js">
 <link rel="modulepreload" href="/lit-html/directives/repeat.js">
-<script type="module" src="/admin/stats.js"></script>
 {% endblock %}
 
 {% block header %}
@@ -14,6 +13,7 @@
 {% endblock %}
 
 {% block content %}
+<div class="pagination-links"></div>
 <table>
   <thead>
     <tr>
@@ -35,8 +35,20 @@
     </tbody>
   </thead>
 </table>
+<div class="pagination-links"></div>
 {% endblock %}
 
 {% block scripts %}
+<script type="module">
+import {html, render} from '../lit-html/lit-html.js';
+import * as stats from './stats.js';
+import {renderPaginationLinks} from '../render.js';
 
+const links = html`${renderPaginationLinks()}`;
+document.querySelectorAll('.pagination-links').forEach(container => {
+  render(links, container);
+});
+
+stats.list(); // async
+</script>
 {% endblock %}

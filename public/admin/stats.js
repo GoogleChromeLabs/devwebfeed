@@ -110,8 +110,7 @@ function renderAnalyticsData(post) {
     </span>`;
 }
 
-function renderTable(posts) {
-
+export function renderTable(posts) {
   const postsTemplate = html`
     ${repeat(posts, (item) => item.url, (item, i) => {
       const author = item.author ? item.author.trim() : ' ';
@@ -140,30 +139,36 @@ function renderTable(posts) {
   views.textContent = `Views ${util.formatNumber(totalViews)}`;
 }
 
-(async() => {
+export async function getYearlyPosts() {
   let params = new URL(location.href).searchParams;
   const year = params.get('year') || util.currentYear;
 
   const uid = await admin.initAuth(); // Check user's auth state.
 
-  _posts = await Promise.all([
+  const yearsData = [
     admin.getPosts(year, uid),
-    admin.getPosts(year - 1, uid),
-    admin.getPosts(year - 2, uid),
-  ]).then(results => {
+    // admin.getPosts(year - 1, uid),
+    // admin.getPosts(year - 2, uid),
+  ];
+
+  _posts = await Promise.all(yearsData).then(results => {
     const posts = util.flatten(results).filter(post => post.pageviews);
     util.sortPostsByDate(posts);
     return posts;
   });
 
-  renderTable(_posts);
+  return _posts;
+}
+
+export async function list() {
+  renderTable(await getYearlyPosts());
 
   // Filter list after data has been set.
-  params = new URL(location.href).searchParams; // get params again since they may have changed since auth.
+  const params = new URL(location.href).searchParams; // get params again since they may have changed since auth.
   for (const key of params.keys()) {
     filterBy(key, params.get(key));
   }
-})();
+}
 
 window.filterBy = filterBy;
 window.clearFilters = clearFilters;

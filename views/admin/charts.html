@@ -15,6 +15,7 @@
 <div class="progress">
   <div class="indeterminate"></div>
 </div>
+<div class="pagination-links"></div>
 <div class="layout">
   <div id="chart-author-views" style="width:100%;height:400px;"></div>
   <div id="chart-domain-views" style="width:100%;height:400px;"></div>
@@ -25,10 +26,13 @@
 {% block scripts %}
 <script src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="module">
-(async() => {
-const util = await import('../../util.mjs');
-const admin = await import('./admin.js');
+import {html, render} from '../lit-html/lit-html.js';
+import * as util from '../util.mjs';
+import * as admin from './admin.js';
+import * as stats from './stats.js';
+import {renderPaginationLinks} from '../render.js';
 
+(async() => {
 function postsByAuthor(posts, year) {
   const authorToPostsMap = new Map();
   posts.forEach(post => {
@@ -89,15 +93,7 @@ const year = params.get('year') || util.currentYear;
 
 const uid = await admin.initAuth(); // Check user's auth state.
 
-const posts = await Promise.all([
-  admin.getPosts(year, uid),
-  // admin.getPosts(year - 1, uid),
-  // admin.getPosts(year - 2, uid),
-]).then(results => {
-  const posts = util.flatten(results).filter(post => post.pageviews);
-  util.sortPostsByDate(posts);
-  return posts;
-});
+const posts = await stats.getYearlyPosts();
 
 const postsByAuthorData = Array.from(postsByAuthor(posts));
 
@@ -127,6 +123,11 @@ drawChart({
 });
 
 document.querySelector('.progress').remove();
+
+const links = html`${renderPaginationLinks()}`;
+document.querySelectorAll('.pagination-links').forEach(container => {
+  render(links, container);
+});
 
 })();
 </script>

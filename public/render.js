@@ -49,7 +49,7 @@ function renderPostIcon(submitter) {
   return html`<img src="${submitter.picture}" class="post_button profile_pic" title="${submitterStr}">`;
 }
 
-function renderPaginationLinks() {
+export function renderPaginationLinks() {
   const params = new URL(location.href).searchParams;
   params.delete('headless');
   const yearView = parseInt(params.get('year') || util.currentYear);
@@ -64,10 +64,10 @@ function renderPaginationLinks() {
   olderLinkParams.set('year', older);
 
   return html`
-    <footer class="pagination layout center-center">
+    <div class="pagination layout center-center">
       <a href="?${newerLinkParams.toString()}" class="${disabled}">&larr; Newer</a> |
       <a href="?${olderLinkParams.toString()}">Older &rarr;</a>
-    </footer>
+    </div>
     `;
 }
 
