@@ -34,7 +34,7 @@ export const FEEDS = [
   // Note: year feeds needed for d.g.c/web b/c default feeds
   // (e.g d.g.c/web/fundamentals/rss.xml) only returns latest 10 items. We want
   // everything for each year.
-  ...flatten([2018, 2017, 2016, 2015].map(year => [
+  ...flatten([2019, 2018, 2017, 2016, 2015].map(year => [
     `https://developers.google.com/web/updates/${year}/rss.xml`,
     `https://developers.google.com/web/fundamentals/${year}/rss.xml`,
     `https://developers.google.com/web/tools/${year}/rss.xml`,
