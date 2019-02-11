@@ -25,6 +25,7 @@ let monitoringChanges = false;
 
 function setApp(firebaseApp) {
   db = firebaseApp.firestore();
+  db.settings && db.settings({timestampsInSnapshots: true});
   return firebaseApp;
 }
 
