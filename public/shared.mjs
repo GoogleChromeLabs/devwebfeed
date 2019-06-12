@@ -45,6 +45,7 @@ export const FEEDS = [
   'https://medium.com/feed/dev-channel',
   'https://blog.chromium.org/rss.xml',
   'https://v8.dev/blog.atom',
+  'https://v8.dev/features.atom',
 
   // Personal blogs.
   'https://philipwalton.com/atom.xml',
