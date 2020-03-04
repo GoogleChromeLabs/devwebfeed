@@ -66,7 +66,7 @@ export const FEEDS = [
   'https://medinathoughts.com/feed/',
   'https://www.igvita.com/feed/',
   'https://paulbakaus.com/feed/',
-  'https://blog.tomayac.com/atom.php',
+  'https://blog.tomayac.com/feed/feed.xml',
   'https://petelepage.com/feed/',
 
   // Github releases.
