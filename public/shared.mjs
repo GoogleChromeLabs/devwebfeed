@@ -68,6 +68,7 @@ export const FEEDS = [
   'https://paulbakaus.com/feed/',
   'https://blog.tomayac.com/feed/feed.xml',
   'https://petelepage.com/feed/',
+  'https://una.im/feed.xml',
 
   // Github releases.
   'https://github.com/googlechrome/lighthouse/releases.atom',
@@ -105,6 +106,7 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'paulbakaus.com', author: 'Paul Bakaus', twitter: 'pbakaus', github: 'pbakaus'},
   {urlMatcher: 'rowan_m', author: 'Rowan Merewood', twitter: 'rowan_m', github: 'rowan-m'},
   {urlMatcher: 'petelepage', author: 'Pete LePage', twitter: 'petele', github: 'petele'},
+  {urlMatcher: 'una.im', author: 'Una Kravets', twitter: 'una', github: 'una'},
 ];
 
 export const YOUTUBE_TO_AUTHOR = [
