@@ -69,6 +69,7 @@ export const FEEDS = [
   'https://blog.tomayac.com/feed/feed.xml',
   'https://petelepage.com/feed/',
   'https://una.im/feed.xml',
+  'https://rreverser.com/rss/',
 
   // Github releases.
   'https://github.com/googlechrome/lighthouse/releases.atom',
@@ -107,6 +108,7 @@ export const BLOG_TO_AUTHOR = [
   {urlMatcher: 'rowan_m', author: 'Rowan Merewood', twitter: 'rowan_m', github: 'rowan-m'},
   {urlMatcher: 'petelepage', author: 'Pete LePage', twitter: 'petele', github: 'petele'},
   {urlMatcher: 'una.im', author: 'Una Kravets', twitter: 'una', github: 'una'},
+  {urlMatcher: 'rreverser', author: 'Ingvar Stepanyan', twitter: 'rreverser', github: 'rreverser'},
 ];
 
 export const YOUTUBE_TO_AUTHOR = [
