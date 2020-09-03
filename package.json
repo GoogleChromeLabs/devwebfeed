@@ -27,7 +27,7 @@
     "googleapis": "^37.2.0",
     "lit-html": "^1.0.0",
     "nunjucks": "^3.1.7",
-    "puppeteer": "^1.12.2",
+    "puppeteer": "^1.13.0",
     "rss": "^1.2.2",
     "rss-parser": "^3.6.2",
     "twitter": "^1.7.1",
