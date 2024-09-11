@@ -20,7 +20,7 @@
     "deploy:cron": "gcloud app deploy cron.yaml --project devwebfeed"
   },
   "dependencies": {
-    "body-parser": "^1.18.3",
+    "body-parser": "^1.20.3",
     "express": "^4.16.4",
     "firebase": "^5.8.2",
     "firebase-admin": "^7.0.0",
