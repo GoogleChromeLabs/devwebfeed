@@ -22,7 +22,7 @@
   "dependencies": {
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
-    "firebase": "^5.8.2",
+    "firebase": "^10.9.0",
     "firebase-admin": "^7.0.0",
     "googleapis": "^37.2.0",
     "lit-html": "^1.0.0",
